@@ -73,6 +73,7 @@ the GeMeDa service agreement.
 
 - [Requirements and open questions](docs/requirements.md)
 - [Architecture and implementation plan](docs/architecture.md)
+- [Roadmap](docs/ROADMAP.md)
 - [Development and validation](docs/DEVELOPMENT.md)
 
 ## Translation
