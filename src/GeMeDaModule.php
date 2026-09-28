@@ -37,6 +37,9 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     private const PREF_SERVICE_KEY = 'service_key';
     private const PREF_CONTRIBUTOR_PEPPER = 'contributor_pepper';
     private const PREF_AUTHORIZED_USERS = 'authorized_users';
+    private const PREF_EXID_TAG = 'exid_tag';
+    public const TAG_EXID = 'EXID';
+    public const TAG_LEGACY_EXID = '_EXID';
 
     public function title(): string
     {
@@ -126,6 +129,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             'contributor_pepper_configured' => $this->getPreference(self::PREF_CONTRIBUTOR_PEPPER, '') !== '',
             'users' => $this->availableUsers(),
             'authorized_user_ids' => $this->authorizedUserIds(),
+            'selected_exid_tag' => $this->preferredExidTag(),
         ]);
     }
 
@@ -133,6 +137,11 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     {
         $body = (array) $request->getParsedBody();
         $this->setPreference(self::PREF_API_BASE_URL, trim((string) ($body['api_base_url'] ?? '')));
+
+        $exid_tag = trim((string) ($body['exid_tag'] ?? self::TAG_LEGACY_EXID));
+        if (in_array($exid_tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true)) {
+            $this->setPreference(self::PREF_EXID_TAG, $exid_tag);
+        }
 
         $selected_user_ids = $body['authorized_user_ids'] ?? [];
         if (!is_array($selected_user_ids)) {
@@ -157,6 +166,17 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         FlashMessages::addMessage(I18N::translate('The GeMeDa settings have been updated.'), 'success');
 
         return redirect($this->getConfigLink());
+    }
+
+    /**
+     * Return the tag to use when the future write-enabled GeMeDa integration
+     * creates a new external identifier.
+     */
+    public function preferredExidTag(): string
+    {
+        $tag = $this->getPreference(self::PREF_EXID_TAG, self::TAG_LEGACY_EXID);
+
+        return in_array($tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true) ? $tag : self::TAG_LEGACY_EXID;
     }
 
     private function apiConfigured(): bool

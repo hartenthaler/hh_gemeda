@@ -12,6 +12,7 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
 /** @var bool $contributor_pepper_configured */
 /** @var array<int,array{id:int,label:string}> $users */
 /** @var array<int,int> $authorized_user_ids */
+/** @var string $selected_exid_tag */
 ?>
 
 <?= view('components/breadcrumbs', [
@@ -27,6 +28,16 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
         <label class="col-sm-3 col-form-label" for="api-base-url"><?= I18N::translate('GeMeDa API base URL') ?></label>
         <div class="col-sm-9">
             <input class="form-control" id="api-base-url" name="api_base_url" type="url" value="<?= e($api_base_url) ?>" placeholder="https://example.invalid/api">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="exid-tag"><?= I18N::translate('Tag for new external identifiers') ?></label>
+        <div class="col-sm-9">
+            <select class="form-select" id="exid-tag" name="exid_tag">
+                <option value="EXID" <?= $selected_exid_tag === 'EXID' ? 'selected' : '' ?>><?= e(I18N::translate('EXID (GEDCOM 7)')) ?></option>
+                <option value="_EXID" <?= $selected_exid_tag === '_EXID' ? 'selected' : '' ?>><?= e(I18N::translate('_EXID (GEDCOM 5.5.1)')) ?></option>
+            </select>
+            <div class="form-text"><?= I18N::translate('This setting applies to new GeMeDa identifiers. Existing EXID and _EXID entries are both recognized and are not changed.') ?></div>
         </div>
     </div>
     <div class="row mb-3">

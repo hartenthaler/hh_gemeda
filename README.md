@@ -17,12 +17,16 @@ The initial scaffold provides:
 - a read-only display for visitors and editors;
 - an administration page for the future API endpoint, server-side secret,
   contributor pepper and explicit contributor allow-list;
+- an administration setting for the tag used by future new identifiers:
+  `EXID` (GEDCOM 7) or `_EXID` (GEDCOM 5.5.1);
 - an API abstraction which currently fails safely. The public project already
   documents a batch lookup endpoint and a bearer-authenticated claim endpoint;
   the production URL, external-client permissions and operational limits still
   need confirmation.
 
 No external record is imported and no claim is written in this phase.
+Existing `EXID` and `_EXID` entries are read equally; the administrator's tag
+choice affects only identifiers created in a later write-enabled phase.
 
 ## Requirements
 
