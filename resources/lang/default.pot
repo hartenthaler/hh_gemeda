@@ -41,6 +41,18 @@ msgstr ""
 msgid "GeMeDa API base URL"
 msgstr ""
 
+msgid "Tag for new external identifiers"
+msgstr ""
+
+msgid "EXID (GEDCOM 7)"
+msgstr ""
+
+msgid "_EXID (GEDCOM 5.5.1)"
+msgstr ""
+
+msgid "This setting applies to new GeMeDa identifiers. Existing EXID and _EXID entries are both recognized and are not changed."
+msgstr ""
+
 msgid "GeMeDa service key"
 msgstr ""
 

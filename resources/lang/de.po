@@ -41,6 +41,18 @@ msgstr "Die GeMeDa-API-Einstellungen sind zunächst ein Gerüst für Phase 1. Ge
 msgid "GeMeDa API base URL"
 msgstr "Basis-URL der GeMeDa-API"
 
+msgid "Tag for new external identifiers"
+msgstr "Kennzeichen für neue externe Kennungen"
+
+msgid "EXID (GEDCOM 7)"
+msgstr "EXID (GEDCOM 7)"
+
+msgid "_EXID (GEDCOM 5.5.1)"
+msgstr "_EXID (GEDCOM 5.5.1)"
+
+msgid "This setting applies to new GeMeDa identifiers. Existing EXID and _EXID entries are both recognized and are not changed."
+msgstr "Diese Einstellung gilt für neue GeMeDa-Kennungen. Vorhandene EXID- und _EXID-Einträge werden gleichermaßen erkannt und nicht geändert."
+
 msgid "GeMeDa service key"
 msgstr "GeMeDa-Serviceschlüssel"
 
