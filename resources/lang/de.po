@@ -47,11 +47,14 @@ msgstr "GeMeDa-Serviceschlüssel"
 msgid "Contributor-ID pepper"
 msgstr "Pepper für die Beitragssteller-ID"
 
-msgid "Authorized webtrees user IDs"
-msgstr "Autorisierte webtrees-Benutzer-IDs"
+msgid "Authorized webtrees users"
+msgstr "Autorisierte webtrees-Benutzer"
 
-msgid "Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase."
-msgstr "Geben Sie numerische webtrees-Benutzer-IDs durch Kommas getrennt ein. Diese Benutzer dürfen in der späteren Schreibphase Zuordnungsbehauptungen anlegen."
+msgid "No webtrees users are available."
+msgstr "Es sind keine webtrees-Benutzer verfügbar."
+
+msgid "Select the webtrees users who may create GeMeDa claims in the later write-enabled phase."
+msgstr "Wählen Sie die webtrees-Benutzer aus, die in der späteren Schreibphase GeMeDa-Zuordnungsbehauptungen anlegen dürfen."
 
 msgid "A service key is stored. Leave the field empty to keep it."
 msgstr "Ein Serviceschlüssel ist gespeichert. Lassen Sie das Feld leer, um ihn beizubehalten."

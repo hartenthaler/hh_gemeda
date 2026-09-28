@@ -47,10 +47,13 @@ msgstr ""
 msgid "Contributor-ID pepper"
 msgstr ""
 
-msgid "Authorized webtrees user IDs"
+msgid "Authorized webtrees users"
 msgstr ""
 
-msgid "Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase."
+msgid "No webtrees users are available."
+msgstr ""
+
+msgid "Select the webtrees users who may create GeMeDa claims in the later write-enabled phase."
 msgstr ""
 
 msgid "A service key is stored. Leave the field empty to keep it."

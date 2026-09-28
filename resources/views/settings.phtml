@@ -10,7 +10,8 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
 /** @var string $api_base_url */
 /** @var bool $service_key_configured */
 /** @var bool $contributor_pepper_configured */
-/** @var string $authorized_users */
+/** @var array<int,array{id:int,label:string}> $users */
+/** @var array<int,int> $authorized_user_ids */
 ?>
 
 <?= view('components/breadcrumbs', [
@@ -43,10 +44,22 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
         </div>
     </div>
     <div class="row mb-3">
-        <label class="col-sm-3 col-form-label" for="authorized-users"><?= I18N::translate('Authorized webtrees user IDs') ?></label>
+        <div class="col-sm-3 col-form-label"><?= I18N::translate('Authorized webtrees users') ?></div>
         <div class="col-sm-9">
-            <input class="form-control" id="authorized-users" name="authorized_users" type="text" value="<?= e($authorized_users) ?>">
-            <div class="form-text"><?= I18N::translate('Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase.') ?></div>
+            <?php if ($users === []): ?>
+                <div class="form-text"><?= I18N::translate('No webtrees users are available.') ?></div>
+            <?php else: ?>
+                <div class="border rounded p-2" role="group" aria-label="<?= e(I18N::translate('Authorized webtrees users')) ?>">
+                    <?php foreach ($users as $user): ?>
+                        <?php $input_id = 'authorized-user-' . $user['id']; ?>
+                        <div class="form-check">
+                            <input class="form-check-input" id="<?= e($input_id) ?>" name="authorized_user_ids[]" type="checkbox" value="<?= e((string) $user['id']) ?>" <?= in_array($user['id'], $authorized_user_ids, true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($user['label']) ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="form-text"><?= I18N::translate('Select the webtrees users who may create GeMeDa claims in the later write-enabled phase.') ?></div>
+            <?php endif; ?>
         </div>
     </div>
     <button class="btn btn-primary" name="action" type="submit" value="save"><?= MoreI18N::xlate('save') ?></button>
