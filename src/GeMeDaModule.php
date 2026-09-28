@@ -14,6 +14,8 @@ use Fisharebest\Webtrees\Module\ModuleCustomInterface;
 use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
 use Fisharebest\Webtrees\Module\ModuleTabTrait;
+use Fisharebest\Webtrees\Registry;
+use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\View;
 use Psr\Http\Message\ResponseInterface;
@@ -123,7 +125,8 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             'api_base_url' => $this->getPreference(self::PREF_API_BASE_URL, ''),
             'service_key_configured' => $this->getPreference(self::PREF_SERVICE_KEY, '') !== '',
             'contributor_pepper_configured' => $this->getPreference(self::PREF_CONTRIBUTOR_PEPPER, '') !== '',
-            'authorized_users' => $this->getPreference(self::PREF_AUTHORIZED_USERS, ''),
+            'users' => $this->availableUsers(),
+            'authorized_user_ids' => $this->authorizedUserIds(),
         ]);
     }
 
@@ -131,7 +134,19 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     {
         $body = (array) $request->getParsedBody();
         $this->setPreference(self::PREF_API_BASE_URL, trim((string) ($body['api_base_url'] ?? '')));
-        $this->setPreference(self::PREF_AUTHORIZED_USERS, trim((string) ($body['authorized_users'] ?? '')));
+
+        $selected_user_ids = $body['authorized_user_ids'] ?? [];
+        if (!is_array($selected_user_ids)) {
+            $selected_user_ids = [];
+        }
+
+        $available_user_ids = array_keys($this->availableUsers());
+        $selected_user_ids = array_values(array_unique(array_filter(
+            array_map(static fn (mixed $user_id): int => (int) $user_id, $selected_user_ids),
+            static fn (int $user_id): bool => $user_id > 0 && in_array($user_id, $available_user_ids, true),
+        )));
+        sort($selected_user_ids, SORT_NUMERIC);
+        $this->setPreference(self::PREF_AUTHORIZED_USERS, implode(',', $selected_user_ids));
 
         foreach ([self::PREF_SERVICE_KEY => 'service_key', self::PREF_CONTRIBUTOR_PEPPER => 'contributor_pepper'] as $preference => $field) {
             $value = trim((string) ($body[$field] ?? ''));
@@ -157,9 +172,38 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             return false;
         }
 
-        $authorized = array_filter(array_map('trim', explode(',', (string) $this->getPreference(self::PREF_AUTHORIZED_USERS, ''))));
+        return in_array(Auth::user()->id(), $this->authorizedUserIds(), true);
+    }
 
-        return in_array((string) Auth::user()->id(), $authorized, true);
+    /**
+     * @return array<int,int>
+     */
+    private function authorizedUserIds(): array
+    {
+        $ids = array_map('intval', explode(',', (string) $this->getPreference(self::PREF_AUTHORIZED_USERS, '')));
+        $ids = array_values(array_filter($ids, static fn (int $user_id): bool => $user_id > 0));
+        sort($ids, SORT_NUMERIC);
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * @return array<int,array{id:int,label:string}>
+     */
+    private function availableUsers(): array
+    {
+        $users = [];
+
+        foreach (Registry::container()->get(UserService::class)->all() as $user) {
+            $users[(int) $user->id()] = [
+                'id' => (int) $user->id(),
+                'label' => $user->realName() . ' (' . $user->userName() . ')',
+            ];
+        }
+
+        uasort($users, static fn (array $left, array $right): int => strcasecmp($left['label'], $right['label']));
+
+        return $users;
     }
 
     public function customTranslations(string $language): array
