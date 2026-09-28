@@ -68,22 +68,3 @@ The proposed write result is:
 The GeMeDa person hash and each returned provider identifier are separate
 external identifiers. Their official type values and URLs must be confirmed
 before the write form is enabled.
-
-## Questions for Robert
-
-1. What is the production API base URL, and is it stable for all installations?
-2. Which of the documented routes are currently deployed for third-party
-   clients, especially `/lookup`, `/search` and `/persons/{personHash}`?
-3. Is use of the public batch lookup by an open-source webtrees module
-   explicitly permitted, and what rate limits, caching rules and attribution
-   requirements apply?
-4. How are service keys issued, rotated and scoped? Would a key be needed per
-   webtrees installation, and may it be stored encrypted server-side?
-5. Which response fields and provider type codes are authoritative for the
-   `_EXID` representation in webtrees?
-6. How are merged, withdrawn or corrected identities reported to clients, and
-   is there an endpoint for invalidating or revising a claim?
-7. Is a per-installation contributor pepper sufficient, or does GeMeDa issue a
-   contributor identity itself?
-8. Is a test endpoint or test dataset available, and who is the technical
-   contact for integration questions?
