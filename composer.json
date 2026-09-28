@@ -1,0 +1,14 @@
+{
+  "name": "hartenthaler/hh_gemeda",
+  "description": "GeMeDa links and claims for webtrees individuals",
+  "type": "webtrees-module",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "webtrees/module-installer": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hartenthaler\\Webtrees\\Module\\GeMeDaModule\\": "src/"
+    }
+  }
+}

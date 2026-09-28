@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: hh_gemeda\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-28 00:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "GeMeDa"
+msgstr ""
+
+msgid "Displays and manages GeMeDa identity links for individuals."
+msgstr ""
+
+msgid "GeMeDa links are displayed from the local GEDCOM record. Live API enrichment is planned for a later phase."
+msgstr ""
+
+msgid "No GeMeDa links are stored for this individual."
+msgstr ""
+
+msgid "Claim creation is unavailable until the administrator configures the GeMeDa API."
+msgstr ""
+
+msgid "Your webtrees account is not authorized to create GeMeDa claims."
+msgstr ""
+
+msgid "Claim creation will be enabled here after the GeMeDa API contract has been confirmed."
+msgstr ""
+
+msgid "The GeMeDa settings have been updated."
+msgstr ""
+
+msgid "The GeMeDa API settings are a phase-1 scaffold. Secrets are used server-side only; claim writing is not enabled yet."
+msgstr ""
+
+msgid "GeMeDa API base URL"
+msgstr ""
+
+msgid "GeMeDa service key"
+msgstr ""
+
+msgid "Contributor-ID pepper"
+msgstr ""
+
+msgid "Authorized webtrees user IDs"
+msgstr ""
+
+msgid "Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase."
+msgstr ""
+
+msgid "A service key is stored. Leave the field empty to keep it."
+msgstr ""
+
+msgid "No service key is stored."
+msgstr ""
+
+msgid "A contributor pepper is stored. Leave the field empty to keep it."
+msgstr ""
+
+msgid "No contributor pepper is stored."
+msgstr ""

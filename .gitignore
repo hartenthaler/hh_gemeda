@@ -1,0 +1,6 @@
+/.idea/
+/.vscode/
+/release/
+*.zip
+*.sha256
+

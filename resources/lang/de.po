@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: hh_gemeda\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-09-28 00:00+0200\n"
+"Last-Translator: Hermann Hartenthaler\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "GeMeDa"
+msgstr "GeMeDa"
+
+msgid "Displays and manages GeMeDa identity links for individuals."
+msgstr "Zeigt GeMeDa-Identitätsverknüpfungen für Personen an und verwaltet sie."
+
+msgid "GeMeDa links are displayed from the local GEDCOM record. Live API enrichment is planned for a later phase."
+msgstr "GeMeDa-Verknüpfungen werden aus dem lokalen GEDCOM-Datensatz angezeigt. Die Anreicherung über die Live-API ist für eine spätere Phase vorgesehen."
+
+msgid "No GeMeDa links are stored for this individual."
+msgstr "Für diese Person sind keine GeMeDa-Verknüpfungen gespeichert."
+
+msgid "Claim creation is unavailable until the administrator configures the GeMeDa API."
+msgstr "Das Anlegen von Zuordnungsbehauptungen ist nicht möglich, solange der Administrator die GeMeDa-API nicht konfiguriert hat."
+
+msgid "Your webtrees account is not authorized to create GeMeDa claims."
+msgstr "Ihr webtrees-Konto ist nicht berechtigt, GeMeDa-Zuordnungsbehauptungen anzulegen."
+
+msgid "Claim creation will be enabled here after the GeMeDa API contract has been confirmed."
+msgstr "Das Anlegen von Zuordnungsbehauptungen wird hier aktiviert, sobald der Vertrag der GeMeDa-API bestätigt ist."
+
+msgid "The GeMeDa settings have been updated."
+msgstr "Die GeMeDa-Einstellungen wurden aktualisiert."
+
+msgid "The GeMeDa API settings are a phase-1 scaffold. Secrets are used server-side only; claim writing is not enabled yet."
+msgstr "Die GeMeDa-API-Einstellungen sind zunächst ein Gerüst für Phase 1. Geheimnisse werden ausschließlich serverseitig verwendet; das Schreiben von Zuordnungsbehauptungen ist noch nicht aktiviert."
+
+msgid "GeMeDa API base URL"
+msgstr "Basis-URL der GeMeDa-API"
+
+msgid "GeMeDa service key"
+msgstr "GeMeDa-Serviceschlüssel"
+
+msgid "Contributor-ID pepper"
+msgstr "Pepper für die Beitragssteller-ID"
+
+msgid "Authorized webtrees user IDs"
+msgstr "Autorisierte webtrees-Benutzer-IDs"
+
+msgid "Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase."
+msgstr "Geben Sie numerische webtrees-Benutzer-IDs durch Kommas getrennt ein. Diese Benutzer dürfen in der späteren Schreibphase Zuordnungsbehauptungen anlegen."
+
+msgid "A service key is stored. Leave the field empty to keep it."
+msgstr "Ein Serviceschlüssel ist gespeichert. Lassen Sie das Feld leer, um ihn beizubehalten."
+
+msgid "No service key is stored."
+msgstr "Es ist kein Serviceschlüssel gespeichert."
+
+msgid "A contributor pepper is stored. Leave the field empty to keep it."
+msgstr "Ein Pepper für Beitragssteller-IDs ist gespeichert. Lassen Sie das Feld leer, um ihn beizubehalten."
+
+msgid "No contributor pepper is stored."
+msgstr "Es ist kein Pepper für Beitragssteller-IDs gespeichert."

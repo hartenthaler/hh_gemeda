@@ -1,0 +1,23 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install --yes gettext
+      - name: Check PHP syntax
+        run: find . -type f \( -name '*.php' -o -name '*.phtml' \) -print0 | xargs -0 -n1 php -l
+      - name: Check gettext catalogs
+        run: |
+          find resources/lang -type f -name '*.po' -print0 | xargs -0 -n1 msgfmt --check --check-format -o /dev/null
+          msgfmt --check -o /dev/null resources/lang/default.pot
+

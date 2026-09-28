@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaLink;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
+
+/** @var array<int,GeMeDaLink> $links */
+/** @var bool $can_create_claims */
+/** @var bool $api_configured */
+?>
+
+<div class="alert alert-info">
+    <?= I18N::translate('GeMeDa links are displayed from the local GEDCOM record. Live API enrichment is planned for a later phase.') ?>
+</div>
+
+<?php if ($links === []) : ?>
+    <p><?= I18N::translate('No GeMeDa links are stored for this individual.') ?></p>
+<?php else : ?>
+    <table class="table table-sm">
+        <thead>
+        <tr>
+            <th><?= MoreI18N::xlate('Provider') ?></th>
+            <th><?= MoreI18N::xlate('External identifier') ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($links as $link) : ?>
+            <tr>
+                <td><?= e($link->provider) ?></td>
+                <td><?= e($link->externalId) ?></td>
+            </tr>
+        <?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>
+
+<?php if (!$api_configured) : ?>
+    <p class="text-muted"><?= I18N::translate('Claim creation is unavailable until the administrator configures the GeMeDa API.') ?></p>
+<?php elseif (!$can_create_claims) : ?>
+    <p class="text-muted"><?= I18N::translate('Your webtrees account is not authorized to create GeMeDa claims.') ?></p>
+<?php else : ?>
+    <p class="text-muted"><?= I18N::translate('Claim creation will be enabled here after the GeMeDa API contract has been confirmed.') ?></p>
+<?php endif ?>

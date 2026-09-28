@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\Http\RequestHandlers\ControlPanel;
+use Fisharebest\Webtrees\I18N;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
+
+/** @var string $title */
+/** @var string $api_base_url */
+/** @var bool $service_key_configured */
+/** @var bool $contributor_pepper_configured */
+/** @var string $authorized_users */
+?>
+
+<?= view('components/breadcrumbs', [
+    'links' => [route(ControlPanel::class) => MoreI18N::xlate('Control panel'), $title],
+]) ?>
+
+<h1><?= e($title) ?></h1>
+<p class="alert alert-warning"><?= I18N::translate('The GeMeDa API settings are a phase-1 scaffold. Secrets are used server-side only; claim writing is not enabled yet.') ?></p>
+
+<form method="post">
+    <?= csrf_field() ?>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="api-base-url"><?= I18N::translate('GeMeDa API base URL') ?></label>
+        <div class="col-sm-9">
+            <input class="form-control" id="api-base-url" name="api_base_url" type="url" value="<?= e($api_base_url) ?>" placeholder="https://example.invalid/api">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="service-key"><?= I18N::translate('GeMeDa service key') ?></label>
+        <div class="col-sm-9">
+            <input class="form-control" id="service-key" name="service_key" type="password" autocomplete="new-password">
+            <div class="form-text"><?= $service_key_configured ? I18N::translate('A service key is stored. Leave the field empty to keep it.') : I18N::translate('No service key is stored.') ?></div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="contributor-pepper"><?= I18N::translate('Contributor-ID pepper') ?></label>
+        <div class="col-sm-9">
+            <input class="form-control" id="contributor-pepper" name="contributor_pepper" type="password" autocomplete="new-password">
+            <div class="form-text"><?= $contributor_pepper_configured ? I18N::translate('A contributor pepper is stored. Leave the field empty to keep it.') : I18N::translate('No contributor pepper is stored.') ?></div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label class="col-sm-3 col-form-label" for="authorized-users"><?= I18N::translate('Authorized webtrees user IDs') ?></label>
+        <div class="col-sm-9">
+            <input class="form-control" id="authorized-users" name="authorized_users" type="text" value="<?= e($authorized_users) ?>">
+            <div class="form-text"><?= I18N::translate('Enter numeric webtrees user IDs separated by commas. These users may create claims in the later write-enabled phase.') ?></div>
+        </div>
+    </div>
+    <button class="btn btn-primary" name="action" type="submit" value="save"><?= MoreI18N::xlate('save') ?></button>
+</form>
