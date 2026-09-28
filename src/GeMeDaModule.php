@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
 use Fisharebest\Webtrees\Module\ModuleTabTrait;
 use Fisharebest\Webtrees\FlashMessages;
+use Fisharebest\Webtrees\View;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -70,6 +71,15 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         return __DIR__ . '/../resources/';
     }
 
+    /** {@inheritdoc} */
+    public function boot(): void
+    {
+        View::registerNamespace(
+            $this->name(),
+            strtr($this->resourcesFolder() . 'views' . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, '/'),
+        );
+    }
+
     public function defaultTabOrder(): int
     {
         return 35;
@@ -83,6 +93,15 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     public function isGrayedOut(Individual $individual): bool
     {
         return (new GeMeDaLinkReader())->read($individual) === [];
+    }
+
+    /** {@inheritdoc} */
+    public function canLoadAjax(): bool
+    {
+        // The first implementation only reads local GEDCOM data.  Keeping the
+        // tab server-rendered also works on webtrees 2.2 and avoids an
+        // unnecessary request before the GeMeDa API integration is available.
+        return false;
     }
 
     public function getTabContent(Individual $individual): string
