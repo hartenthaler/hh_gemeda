@@ -15,6 +15,7 @@ use Fisharebest\Webtrees\Module\ModuleCustomTrait;
 use Fisharebest\Webtrees\Module\ModuleTabInterface;
 use Fisharebest\Webtrees\Module\ModuleTabTrait;
 use Fisharebest\Webtrees\FlashMessages;
+use Fisharebest\Webtrees\View;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -68,6 +69,15 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     public function resourcesFolder(): string
     {
         return __DIR__ . '/../resources/';
+    }
+
+    /** {@inheritdoc} */
+    public function boot(): void
+    {
+        View::registerNamespace(
+            $this->name(),
+            strtr($this->resourcesFolder() . 'views' . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, '/'),
+        );
     }
 
     public function defaultTabOrder(): int
