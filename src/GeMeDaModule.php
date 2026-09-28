@@ -85,6 +85,15 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         return (new GeMeDaLinkReader())->read($individual) === [];
     }
 
+    /** {@inheritdoc} */
+    public function canLoadAjax(): bool
+    {
+        // The first implementation only reads local GEDCOM data.  Keeping the
+        // tab server-rendered also works on webtrees 2.2 and avoids an
+        // unnecessary request before the GeMeDa API integration is available.
+        return false;
+    }
+
     public function getTabContent(Individual $individual): string
     {
         return view($this->name() . '::tab', [
