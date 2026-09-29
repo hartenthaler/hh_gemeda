@@ -1,5 +1,8 @@
 # GeMeDa architecture
 
+This model alignment follows the [GeMeDa database model specification
+(28 September 2026)](https://cloud.rpi.digital/index.php/s/RAT3RRqjPWqqGD4).
+
 ## Current read path
 
 `GeMeDaModule::getTabContent()` reads the individual's GEDCOM text through
@@ -23,6 +26,32 @@ The production base URL, external-client permissions, rate limits and the
 deployment status of the additional documented routes still require
 confirmation. The module must therefore not hard-code a live URL or assume
 that a service key is available.
+
+## Alignment with the GeMeDa data model
+
+The public data model separates three concerns:
+
+- `person` is the cross-source GeMeDa identity. Its public stable identifier
+  is `person_hash`; `display_name` is a presentation snapshot, not the
+  identity key.
+- `source` describes one provider record. The pair `(provider, external_id)`
+  is unique. A source is either a `person_record` or a `container` and may
+  carry an `external_url` and a label snapshot.
+- `person_source` assigns a source to at most one GeMeDa person. Reusing a
+  source must not create a second assignment.
+
+Claims connect two sources. They currently use `same_person`; the confidence
+values are `sehr_wahrscheinlich`, `wahrscheinlich` and `unwahrscheinlich`.
+The service records claims and operations transactionally. A batch with no
+existing GeMeDa person creates one person; a batch whose sources all belong
+to one person reuses that person; sources belonging to different persons are
+a conflict and must not be merged automatically.
+
+`contained_in` is a planned relation between a person record and a container.
+It is not a same-person assignment and must not be implemented by adding both
+sources to one `person_source` group. Administrative correction, merge/split,
+stable claim keys based on provider identifiers and source metadata history
+remain later API concerns.
 
 ## Planned write path
 
