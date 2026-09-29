@@ -46,6 +46,27 @@ the initial specification:
   `/var/private-config/gemeda-api.php` file. The repository does not reveal the
   production host, key-issuance process, rate limits or third-party usage terms.
 
+## Status from the GeMeDa team (29 September 2026)
+
+- The current test base URL is `https://api.gemeda.rpi.digital`; it is not a
+  production endpoint. At present there is only a test environment.
+- The documented batch lookup and claims operations are available for testing,
+  but claim creation is currently restricted to local testing by the service.
+- Bearer authentication is the current mechanism. One shared service key is
+  used at present; there is no per-webtrees-installation key process yet.
+- No rate limits or caching rules have been defined. The module must therefore
+  use conservative timeouts, bounded responses and versioned caching itself.
+- The additional `GET` routes are not guaranteed. The module must not depend on
+  them unless the service contract is updated.
+- There is no admin portal for deleting, correcting, withdrawing or merging
+  records yet.
+- The service now needs a `contained_in` relation alongside `same_person` for
+  source/container cases. It is not a same-person merge and must remain a
+  separate relation.
+
+The current project issue list is available at the [GitLab
+Issues](https://gitlab.genealogy.net/system0/zentrum-der-projekte/-/issues).
+
 The current service data model is deliberately source-oriented: a source is
 identified by the unique pair `(provider, external_id)`, can be a
 `person_record` or a `container`, and is assigned to at most one GeMeDa
@@ -61,10 +82,10 @@ webtrees module. A future `contained_in` relation is not a person merge and
 must remain separate from same-person claims.
 
 The reference also lists `GET /lookup`, `GET /persons/{personHash}`,
-`GET /search` and `POST /claims/{claimId}/rate`. The current public router
-primarily exposes `/health`, `/api/v1/lookup/batch` and `/api/v1/claims`, so
-Robert should confirm which documented routes are deployed and supported for
-external clients.
+`GET /search` and `POST /claims/{claimId}/rate`. The current router primarily
+exposes `/health`, `/api/v1/lookup/batch` and `/api/v1/claims`; the other routes
+must be treated as optional until Robert confirms their deployment and
+external-client support.
 
 For the first module phase, the public batch lookup is sufficient in principle.
 No write operation or service key is needed until the module is extended to

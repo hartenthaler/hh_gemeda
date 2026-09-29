@@ -3,6 +3,9 @@
 ## Next release
 
 - Created the initial GeMeDa webtrees module scaffold.
+- Documented the current GeMeDa test environment, including its API endpoint,
+  local-only claim writes, shared Bearer key and open production security and
+  rate-limit decisions.
 - Documented the GeMeDa service data model and the confirmed provider URL
   templates; unresolved provider homepages remain explicitly unregistered as
   EXID authorities.

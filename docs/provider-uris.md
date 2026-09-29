@@ -12,6 +12,9 @@ Kennung unmittelbar hinter einem festen Pfad erwartet, darf in den
 | --- | --- | --- |
 | GEDBAS | `https://gedbas.genealogy.net/person/show/{ID}` | `src/data-access/gedbasSearch/result.mapper.ts`, `gedbasSearch.api.ts` |
 | DePeVe | `https://depeve.de/person/{ID}` | `src/data-access/depeveSearch.ts` |
+| DES | `https://des.genealogy.net/search/show/{ID}` | provider URL supplied for the numeric DES entry identifier |
+| Online-OFB | `http://www.online-ofb.de/famreport.php?ofb={ID}` | provider URL supplied; `{ID}` contains the OFB key and `&ID=` person identifier |
+| Adressbücher | `https://adressbuecher.genealogy.net/entry/{ID}` | provider URL supplied for UUID entry identifiers |
 | GenWiki | `https://wiki.genealogy.net/?curid={ID}` | bereits im `hh_exid`-Katalog; Portal nutzt zusätzlich die MediaWiki-API |
 | GOV | `https://gov.genealogy.net/item/show/{ID}` | im `hh_external_places`-Provider; nicht neu in `hh_exid` aufnehmen, wenn die GEDCOM-Registry-URI bereits maßgeblich ist |
 
@@ -19,7 +22,8 @@ GEDBAS und DePeVe sind als zusätzliche Autoritäten im gebündelten
 `hh_exid`-Katalog registriert. Bei DePeVe ist das Kennungsformat im Portal
 nicht weiter eingeschränkt; der Katalog lässt deshalb jeden sicheren,
 URL-tauglichen Wert zu. GEDBAS verwendet die im Portal ermittelte numerische
-Personenkennung.
+Personenkennung. Beide Autoritäten sind im Katalog auf die Kontexte `INDI`,
+`SOUR` und `SNOTE` beschränkt.
 
 ## Noch nicht als EXID-URI registriert
 
@@ -27,11 +31,8 @@ Die im Portal sichtbaren Einstiegs-URIs sind:
 
 | Angebot | Portal-URI | Verwendungsstatus |
 | --- | --- | --- |
-| Historische Adressbücher | `https://adressbuecher.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
-| DES | `https://des.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
 | Familienanzeigen | `http://familienanzeigen.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
 | Grabsteine | `https://grabsteine.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
-| Ortsfamilienbücher | `https://ofb.genealogy.net/` | Startseite/Suche, zusammengesetzte OFB-IDs sind kein einfacher URL-Pfad |
 | GOV | `https://gov.genealogy.net/` | GOV-ID-Link ist bereits provider-spezifisch in `hh_external_places` dokumentiert |
 | GenWiki | `https://wiki.genealogy.net/` | Seitenkennnummer ist bereits im `hh_exid`-Katalog dokumentiert |
 
