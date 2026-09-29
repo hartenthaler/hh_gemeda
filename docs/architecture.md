@@ -22,10 +22,40 @@ The current GeMeDa project documents a public batch read endpoint at
 request requires at least two unique sources and a display name and confidence
 value. The service creates the related records transactionally.
 
-The production base URL, external-client permissions, rate limits and the
-deployment status of the additional documented routes still require
-confirmation. The module must therefore not hard-code a live URL or assume
-that a service key is available.
+The current test base URL is `https://api.gemeda.rpi.digital`. It is available
+for local testing; there is no production environment and external claim
+creation is not generally authorised. Bearer authentication is current and
+one shared key is used. No rate limits or caching policy are defined yet, so
+the module must implement conservative limits itself. The uncertain `GET`
+routes must not be a hard dependency.
+
+## Alignment with the GeMeDa data model
+
+The public data model separates three concerns:
+
+- `person` is the cross-source GeMeDa identity. Its public stable identifier
+  is `person_hash`; `display_name` is a presentation snapshot, not the
+  identity key.
+- `source` describes one provider record. The pair `(provider, external_id)`
+  is unique. A source is either a `person_record` or a `container` and may
+  carry an `external_url` and a label snapshot.
+- `person_source` assigns a source to at most one GeMeDa person. Reusing a
+  source must not create a second assignment.
+
+Claims connect two sources. They currently use `same_person`; the confidence
+values are `sehr_wahrscheinlich`, `wahrscheinlich` and `unwahrscheinlich`.
+The service records claims and operations transactionally. A batch with no
+existing GeMeDa person creates one person; a batch whose sources all belong
+to one person reuses that person; sources belonging to different persons are
+a conflict and must not be merged automatically.
+
+`contained_in` is now a required relation between a person record and a
+container for cases such as a grave marker that refers to more than one
+person. It is not a same-person assignment and must not be implemented by
+adding both sources to one `person_source` group. The API and UI contract for
+this relation is still being finalised. Administrative correction,
+merge/split, stable claim keys based on provider identifiers and source
+metadata history remain later API concerns.
 
 ## Alignment with the GeMeDa data model
 
@@ -69,13 +99,15 @@ messages and must not leave partially written GEDCOM data.
 
 The scaffold stores the endpoint, service key, contributor pepper and user
 allow-list as module preferences. Secrets are never rendered back into the
-form. Before production use, confirm whether webtrees site preferences satisfy
-the service's security requirements or whether a dedicated encrypted storage
-mechanism is needed.
+form. The current test setup uses one shared service key. Before production,
+decide whether each installation receives a key or whether another
+authorisation model applies, and use secure or encrypted storage. There is no
+service admin portal for correction, deletion, withdrawal or merging yet.
 
 ## Performance and failure handling
 
 The tab is intentionally local-only in phase 1. Future remote reads should use
 timeouts, bounded response sizes, a cache with an explicit version key and a
-graceful read-only fallback. Batch operations remain out of scope until their
-authorization and load characteristics are documented.
+graceful read-only fallback. Because the service has not defined rate limits,
+the module must be conservative by default. Batch operations remain out of
+scope until their authorization and load characteristics are documented.

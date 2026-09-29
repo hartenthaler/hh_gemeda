@@ -9,8 +9,10 @@ control.
 
 - keep the module installable on webtrees 2.2 and 2.3;
 - display existing GeMeDa and source identifiers read-only;
-- confirm the production API base URL, supported routes, usage terms and test
-  access with the GeMeDa team;
+- record the current test API base URL and limitations; keep production
+  deployment and external write access explicitly unresolved;
+- confirm the `contained_in` relation alongside `same_person` in the service
+  contract;
 - document the agreed provider/type mapping.
 - align the implementation with the service data model (`person`, `source`,
   `person_source`, `claim` and `operation_log`);
@@ -27,6 +29,8 @@ control.
   in the UI and API mapping;
 - treat different existing GeMeDa persons in one batch as a conflict rather
   than merging them.
+- do not make the uncertain `GET /lookup`, `/search` or `/persons/:hash`
+  routes a hard dependency.
 
 ## Version 0.3 — controlled claim workflow
 
@@ -36,7 +40,9 @@ control.
 - write confirmed GeMeDa and provider identifiers as separate `_EXID` blocks;
 - handle conflicts, corrections, withdrawals and audit information according
   to the confirmed API contract.
-- keep the planned `contained_in` relation separate from `same_person` claims;
+- keep the `contained_in` relation separate from `same_person` claims;
+- proceed only after the current local-only test access, per-installation key
+  model, secure storage and rate-limit policy have been clarified;
 - add administrative correction, merge/split and source-history operations
   only after the service contract defines them.
 

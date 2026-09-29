@@ -21,8 +21,14 @@ The initial scaffold provides:
   `EXID` (GEDCOM 7) or `_EXID` (GEDCOM 5.5.1);
 - an API abstraction which currently fails safely. The public project already
   documents a batch lookup endpoint and a bearer-authenticated claim endpoint;
-  the production URL, external-client permissions and operational limits still
-  need confirmation.
+  the current test endpoint is known, while the production URL,
+  external-client permissions and operational limits still need confirmation.
+
+The current test endpoint is `https://api.gemeda.rpi.digital/api/v1`. It is
+not a production service: only the test environment exists, and claim writes
+are currently restricted to local testing by the GeMeDa service. A single
+shared Bearer key is used at present; a per-installation key and its secure
+storage remain open production decisions.
 
 No external record is imported and no claim is written in this phase.
 Existing `EXID` and `_EXID` entries are read equally; the administrator's tag
@@ -68,10 +74,14 @@ or a compatible Custom Module Management workflow can install it below
 ## Security and privacy
 
 API secrets are entered only on the administration page and are used
-server-side. The contributor allow-list is explicit; an ordinary visitor or
-editor cannot create claims. The module must remain useful in read-only mode if
-the API is unavailable. The final data-retention and privacy wording depends on
-the GeMeDa service agreement.
+server-side. During the current test phase, one shared service key is used and
+the GeMeDa service restricts claim writes to local testing. The contributor
+allow-list is explicit; an ordinary visitor or editor cannot create claims.
+Before production, per-installation credentials (or a documented alternative),
+secure storage, rate limits and correction workflows still need to be defined.
+The module must remain useful in read-only mode if the API is unavailable. The
+final data-retention and privacy wording depends on the GeMeDa service
+agreement.
 
 ## Documentation
 
