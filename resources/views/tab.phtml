@@ -7,7 +7,6 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaLink;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
 
 /** @var array<int,GeMeDaLink> $links */
-/** @var bool $can_create_claims */
 /** @var bool $api_configured */
 /** @var string $search_url */
 ?>
@@ -37,18 +36,12 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
     </table>
 <?php endif ?>
 
-<?php if (!$api_configured) : ?>
-    <p class="text-muted"><?= I18N::translate('Claim creation is unavailable until the administrator configures the GeMeDa API.') ?></p>
-<?php elseif (!$can_create_claims) : ?>
-    <p class="text-muted"><?= I18N::translate('Your webtrees account is not authorized to create GeMeDa claims.') ?></p>
-<?php else : ?>
-    <p class="text-muted"><?= I18N::translate('Claim creation is not part of this search workflow.') ?></p>
-<?php endif ?>
-
 <?php if ($api_configured) : ?>
     <p>
         <a class="btn btn-primary" href="<?= e($search_url) ?>">
             <?= I18N::translate('Search GeMeDa') ?>
         </a>
     </p>
+<?php else : ?>
+    <p class="text-muted"><?= I18N::translate('Person search is unavailable until the administrator configures the GeMeDa API URL.') ?></p>
 <?php endif ?>

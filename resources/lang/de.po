@@ -29,6 +29,9 @@ msgstr "Für diese Person sind keine GeMeDa-Verknüpfungen gespeichert."
 msgid "Claim creation is unavailable until the administrator configures the GeMeDa API."
 msgstr "Das Anlegen von Zuordnungsbehauptungen ist nicht möglich, solange der Administrator die GeMeDa-API nicht konfiguriert hat."
 
+msgid "Person search is unavailable until the administrator configures the GeMeDa API URL."
+msgstr "Die Personensuche ist nicht verfügbar, solange der Administrator die API-URL von GeMeDa nicht konfiguriert hat."
+
 msgid "Your webtrees account is not authorized to create GeMeDa claims."
 msgstr "Ihr webtrees-Konto ist nicht berechtigt, GeMeDa-Zuordnungsbehauptungen anzulegen."
 
