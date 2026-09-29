@@ -29,6 +29,16 @@ one shared key is used. No rate limits or caching policy are defined yet, so
 the module must implement conservative limits itself. The uncertain `GET`
 routes must not be a hard dependency.
 
+## Person search boundary
+
+The individual tab delegates person search to
+`Infrastructure\\HttpGeMeDaApiClient`. The client uses the PSR-18 service from
+webtrees 2.3 when available and falls back to Guzzle on webtrees 2.2.
+`GeMeDaSearchCriteria` and `GeMeDaSearchResult` keep the user interface
+independent of evolving API field names. The assumed endpoint is
+`POST /api/v1/search`; changing the route or adapting the final response schema
+is confined to this adapter.
+
 ## Alignment with the GeMeDa data model
 
 The public data model separates three concerns:

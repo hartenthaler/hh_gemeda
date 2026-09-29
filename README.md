@@ -2,15 +2,15 @@
 
 GeMeDa (Genealogische Meta-Datenbank) is intended to connect people in a
 webtrees tree with identities in genealogical source databases. This module is
-the webtrees-side integration: it displays local GeMeDa-related identifiers
-and will later support carefully controlled claim creation.
+the webtrees-side integration: it displays local GeMeDa-related identifiers and
+can search the configured GeMeDa service for an individual.
 
 The project background is described in the [Zentrum der Projekte](https://gitlab.genealogy.net/system0/zentrum-der-projekte)
 and in the [CompGen article about the genealogical research centre](https://www.compgen.de/2026/09/das-neue-zentrum-der-genealogischen-forschung-idee-und-stand-der-arbeiten-fuer-das-genealogienetz-portal/).
 
 ## Current status
 
-The initial scaffold provides:
+The current implementation provides:
 
 - an individual tab for existing local `_EXID` records whose `TYPE` identifies
   GeMeDa or a linked source database;
@@ -19,10 +19,9 @@ The initial scaffold provides:
   contributor pepper and explicit contributor allow-list;
 - an administration setting for the tag used by future new identifiers:
   `EXID` (GEDCOM 7) or `_EXID` (GEDCOM 5.5.1);
-- an API abstraction which currently fails safely. The public project already
-  documents a batch lookup endpoint and a bearer-authenticated claim endpoint;
-  the current test endpoint is known, while the production URL,
-  external-client permissions and operational limits still need confirmation.
+- a version-compatible HTTP boundary for the assumed person-search endpoint;
+  the final search route and response schema remain subject to confirmation by
+  the GeMeDa service.
 
 The current test endpoint is `https://api.gemeda.rpi.digital/api/v1`. It is
 not a production service: only the test environment exists, and claim writes
@@ -30,9 +29,17 @@ are currently restricted to local testing by the GeMeDa service. A single
 shared Bearer key is used at present; a per-installation key and its secure
 storage remain open production decisions.
 
-No external record is imported and no claim is written in this phase.
+No external record is imported and no GeMeDa claim is written in this phase.
 Existing `EXID` and `_EXID` entries are read equally; the administrator's tag
 choice affects only identifiers created in a later write-enabled phase.
+
+When the API base URL and service key are configured, the individual tab also
+offers **Search GeMeDa**. The search sends the person's name and first recorded
+place to the assumed `POST /api/v1/search` endpoint. A selected result is stored
+as a new `EXID` or `_EXID` block with `2 TYPE gemeda`, according to the
+administrator setting. The endpoint path and response normalization are
+isolated in the HTTP client so they can be adjusted when the final API contract
+is published.
 
 ## Requirements
 
