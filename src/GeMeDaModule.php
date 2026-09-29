@@ -118,7 +118,6 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         return view($this->name() . '::tab', [
             'individual' => $individual,
             'links' => (new GeMeDaLinkReader())->read($individual),
-            'can_create_claims' => $this->canCreateClaims(),
             'api_configured' => $this->apiConfigured(),
             'search_url' => route('module', [
                 'module' => $this->name(),
@@ -253,8 +252,9 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
 
     private function apiConfigured(): bool
     {
-        return trim((string) $this->getPreference(self::PREF_API_BASE_URL, self::DEFAULT_API_BASE_URL)) !== ''
-            && trim((string) $this->getPreference(self::PREF_SERVICE_KEY, '')) !== '';
+        // Person search is read-only. A service key is only required by the
+        // future claim-writing workflow and must not hide the search button.
+        return trim((string) $this->getPreference(self::PREF_API_BASE_URL, self::DEFAULT_API_BASE_URL)) !== '';
     }
 
     private function apiClient(): HttpGeMeDaApiClient
