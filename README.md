@@ -77,6 +77,7 @@ the GeMeDa service agreement.
 
 - [Requirements and open questions](docs/requirements.md)
 - [Architecture and implementation plan](docs/architecture.md)
+- [Provider URLs and EXID mapping](docs/provider-uris.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Development and validation](docs/DEVELOPMENT.md)
 

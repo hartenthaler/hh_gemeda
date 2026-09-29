@@ -1,5 +1,9 @@
 # GeMeDa requirements
 
+The requirements below incorporate the [GeMeDa database model specification
+(28 September 2026)](https://cloud.rpi.digital/index.php/s/RAT3RRqjPWqqGD4)
+and the [portal API reference](https://gitlab.genealogy.net/system0/zentrum-der-projekte/-/blob/main/docs/gemeda-api.md).
+
 This document records the first implementation boundary and the questions that
 must be answered before the module writes claims to GeMeDa.
 
@@ -42,6 +46,20 @@ the initial specification:
   `/var/private-config/gemeda-api.php` file. The repository does not reveal the
   production host, key-issuance process, rate limits or third-party usage terms.
 
+The current service data model is deliberately source-oriented: a source is
+identified by the unique pair `(provider, external_id)`, can be a
+`person_record` or a `container`, and is assigned to at most one GeMeDa
+person. A GeMeDa person is identified publicly by `person_hash`; its display
+name is only a snapshot. Same-person claims connect sources and are recorded
+with a confidence value and an operation log.
+
+The implementation must follow the service's conflict rules: create a person
+when none of the selected sources is known, reuse the existing person when
+all known sources belong to the same person, and stop with a conflict when
+different existing persons are involved. No automatic merge is allowed in the
+webtrees module. A future `contained_in` relation is not a person merge and
+must remain separate from same-person claims.
+
 The reference also lists `GET /lookup`, `GET /persons/{personHash}`,
 `GET /search` and `POST /claims/{claimId}/rate`. The current public router
 primarily exposes `/health`, `/api/v1/lookup/batch` and `/api/v1/claims`, so
@@ -66,5 +84,8 @@ The proposed write result is:
 ```
 
 The GeMeDa person hash and each returned provider identifier are separate
-external identifiers. Their official type values and URLs must be confirmed
-before the write form is enabled.
+external identifiers. The official type URI for a provider is only added when
+the provider documents a stable URL template. The currently confirmed
+templates from the Genealogienetz portal are documented in
+[docs/provider-uris.md](provider-uris.md); a provider homepage or search URL
+must not be mistaken for an identifier URL.
