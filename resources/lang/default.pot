@@ -20,6 +20,9 @@ msgstr ""
 msgid "GeMeDa links are displayed from the local GEDCOM record. Live API enrichment is planned for a later phase."
 msgstr ""
 
+msgid "GeMeDa links are displayed from the local GEDCOM record. Editors can search the configured GeMeDa service for this individual."
+msgstr ""
+
 msgid "No GeMeDa links are stored for this individual."
 msgstr ""
 
@@ -78,4 +81,49 @@ msgid "A contributor pepper is stored. Leave the field empty to keep it."
 msgstr ""
 
 msgid "No contributor pepper is stored."
+msgstr ""
+
+msgid "Search GeMeDa"
+msgstr ""
+
+msgid "Search GeMeDa for %s"
+msgstr ""
+
+msgid "The GeMeDa API is not configured. Ask an administrator to enter the API URL and service key."
+msgstr ""
+
+msgid "The search uses the individual’s name and the first place recorded in the GEDCOM record."
+msgstr ""
+
+msgid "No GeMeDa persons were found."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "GeMeDa identifier"
+msgstr ""
+
+msgid "Linked sources"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Add EXID"
+msgstr ""
+
+msgid "The GeMeDa person identifier is invalid."
+msgstr ""
+
+msgid "This GeMeDa identifier is already stored."
+msgstr ""
+
+msgid "The GeMeDa identifier for %s was added."
+msgstr ""
+
+msgid "You are not authorized to modify this individual."
+msgstr ""
+
+msgid "Claim creation is not part of this search workflow."
 msgstr ""

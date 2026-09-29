@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+use Fisharebest\Webtrees\I18N;
+use Fisharebest\Webtrees\Individual;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchCriteria;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
+
+/** @var string $title */
+/** @var Individual $individual */
+/** @var GeMeDaSearchCriteria $criteria */
+/** @var list<GeMeDaSearchResult> $results */
+/** @var ?string $error */
+/** @var bool $can_edit */
+/** @var string $search_url */
+?>
+
+<h1><?= e($title) ?></h1>
+<p><a href="<?= e($individual->url()) ?>"><?= e(strip_tags($individual->fullName())) ?></a></p>
+
+<?php if ($error !== null) : ?>
+    <div class="alert alert-warning"><?= e($error) ?></div>
+<?php endif ?>
+
+<p class="text-muted">
+    <?= I18N::translate('The search uses the individual’s name and the first place recorded in the GEDCOM record.') ?>
+</p>
+
+<?php if ($results === []) : ?>
+    <p><?= I18N::translate('No GeMeDa persons were found.') ?></p>
+<?php else : ?>
+    <table class="table table-sm table-striped">
+        <thead>
+        <tr>
+            <th><?= I18N::translate('Name') ?></th>
+            <th><?= I18N::translate('GeMeDa identifier') ?></th>
+            <th><?= I18N::translate('Linked sources') ?></th>
+            <th><?= I18N::translate('Action') ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($results as $result) : ?>
+            <tr>
+                <td><?= e($result->displayName) ?></td>
+                <td><code><?= e($result->personHash) ?></code></td>
+                <td>
+                    <?php foreach ($result->sources as $source) : ?>
+                        <div><?= e($source['label'] ?? $source['provider']) ?>: <code><?= e($source['external_id']) ?></code></div>
+                    <?php endforeach ?>
+                </td>
+                <td>
+                    <?php if ($can_edit) : ?>
+                        <form method="post" action="<?= e($search_url) ?>">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="person_hash" value="<?= e($result->personHash) ?>">
+                            <input type="hidden" name="person_name" value="<?= e($result->displayName) ?>">
+                            <button class="btn btn-sm btn-primary" type="submit">
+                                <?= I18N::translate('Add EXID') ?>
+                            </button>
+                        </form>
+                    <?php endif ?>
+                </td>
+            </tr>
+        <?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>

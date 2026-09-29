@@ -20,6 +20,9 @@ msgstr "Zeigt GeMeDa-Identitätsverknüpfungen für Personen an und verwaltet si
 msgid "GeMeDa links are displayed from the local GEDCOM record. Live API enrichment is planned for a later phase."
 msgstr "GeMeDa-Verknüpfungen werden aus dem lokalen GEDCOM-Datensatz angezeigt. Die Anreicherung über die Live-API ist für eine spätere Phase vorgesehen."
 
+msgid "GeMeDa links are displayed from the local GEDCOM record. Editors can search the configured GeMeDa service for this individual."
+msgstr "GeMeDa-Verknüpfungen werden aus dem lokalen GEDCOM-Datensatz angezeigt. Bearbeiter können den konfigurierten GeMeDa-Dienst nach dieser Person durchsuchen."
+
 msgid "No GeMeDa links are stored for this individual."
 msgstr "Für diese Person sind keine GeMeDa-Verknüpfungen gespeichert."
 
@@ -79,3 +82,48 @@ msgstr "Ein Pepper für Beitragssteller-IDs ist gespeichert. Lassen Sie das Feld
 
 msgid "No contributor pepper is stored."
 msgstr "Es ist kein Pepper für Beitragssteller-IDs gespeichert."
+
+msgid "Search GeMeDa"
+msgstr "GeMeDa durchsuchen"
+
+msgid "Search GeMeDa for %s"
+msgstr "GeMeDa nach %s durchsuchen"
+
+msgid "The GeMeDa API is not configured. Ask an administrator to enter the API URL and service key."
+msgstr "Die GeMeDa-API ist nicht konfiguriert. Bitten Sie einen Administrator, API-URL und Serviceschlüssel einzutragen."
+
+msgid "The search uses the individual’s name and the first place recorded in the GEDCOM record."
+msgstr "Die Suche verwendet den Namen der Person und den ersten im GEDCOM-Datensatz aufgeführten Ort."
+
+msgid "No GeMeDa persons were found."
+msgstr "Keine GeMeDa-Personen gefunden."
+
+msgid "Name"
+msgstr "Name"
+
+msgid "GeMeDa identifier"
+msgstr "GeMeDa-Kennung"
+
+msgid "Linked sources"
+msgstr "Verknüpfte Quellen"
+
+msgid "Action"
+msgstr "Aktion"
+
+msgid "Add EXID"
+msgstr "EXID hinzufügen"
+
+msgid "The GeMeDa person identifier is invalid."
+msgstr "Die GeMeDa-Personenkennung ist ungültig."
+
+msgid "This GeMeDa identifier is already stored."
+msgstr "Diese GeMeDa-Kennung ist bereits gespeichert."
+
+msgid "The GeMeDa identifier for %s was added."
+msgstr "Die GeMeDa-Kennung für %s wurde hinzugefügt."
+
+msgid "You are not authorized to modify this individual."
+msgstr "Sie sind nicht berechtigt, diese Person zu ändern."
+
+msgid "Claim creation is not part of this search workflow."
+msgstr "Das Erstellen von Zuordnungsbehauptungen gehört nicht zu diesem Suchablauf."

@@ -14,3 +14,6 @@
   write-enabled phase.
 - Added an administration setting to choose `EXID` or `_EXID` for future new
   GeMeDa identifiers; both spellings remain readable.
+- Added a version-compatible person search using the configured GeMeDa API and
+  a controlled action for editors to store a selected person hash as `EXID` or
+  `_EXID` with `2 TYPE gemeda`.

@@ -18,12 +18,16 @@ use Fisharebest\Webtrees\Registry;
 use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\View;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchCriteria;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Infrastructure\HttpGeMeDaApiClient;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Infrastructure\GeMeDaLinkReader;
 
 use function file_exists;
+use function preg_match;
+use function trim;
 
 class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, ModuleCustomInterface, ModuleTabInterface
 {
@@ -38,6 +42,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     private const PREF_CONTRIBUTOR_PEPPER = 'contributor_pepper';
     private const PREF_AUTHORIZED_USERS = 'authorized_users';
     private const PREF_EXID_TAG = 'exid_tag';
+    private const DEFAULT_API_BASE_URL = 'https://api.gemeda.rpi.digital';
     public const TAG_EXID = 'EXID';
     public const TAG_LEGACY_EXID = '_EXID';
 
@@ -115,7 +120,74 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             'links' => (new GeMeDaLinkReader())->read($individual),
             'can_create_claims' => $this->canCreateClaims(),
             'api_configured' => $this->apiConfigured(),
+            'search_url' => route('module', [
+                'module' => $this->name(),
+                'action' => 'Search',
+                'tree' => $individual->tree()->name(),
+                'xref' => $individual->xref(),
+            ]),
         ]);
+    }
+
+    /** Search the configured GeMeDa endpoint for the current individual. */
+    public function getSearchAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $context = $this->searchContext($request);
+        $results = [];
+        $error = null;
+        $criteria = $this->criteriaForIndividual($context['individual']);
+
+        if ($this->apiConfigured()) {
+            try {
+                $results = $this->apiClient()->search($criteria);
+            } catch (\Throwable $exception) {
+                $error = $exception->getMessage();
+            }
+        } else {
+            $error = I18N::translate('The GeMeDa API is not configured. Ask an administrator to enter the API URL and service key.');
+        }
+
+        return $this->viewResponse($this->name() . '::search', [
+            'title' => I18N::translate('Search GeMeDa for %s', trim(strip_tags($context['individual']->fullName()))),
+            'individual' => $context['individual'],
+            'tree' => $context['tree'],
+            'criteria' => $criteria,
+            'results' => $results,
+            'error' => $error,
+            'can_edit' => $context['individual']->canEdit(),
+            'search_url' => $this->searchUrl($context['tree']->name(), $context['individual']->xref()),
+        ]);
+    }
+
+    /** Add the selected GeMeDa result as an EXID block to the individual. */
+    public function postSearchAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $context = $this->searchContext($request);
+        if (!$context['individual']->canEdit()) {
+            FlashMessages::addMessage(I18N::translate('You are not authorized to modify this individual.'), 'danger');
+            return redirect($context['individual']->url());
+        }
+
+        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $hash = trim((string) ($body['person_hash'] ?? ''));
+        $name = trim((string) ($body['person_name'] ?? $hash));
+        if ($hash === '' || preg_match('/^[A-Za-z0-9][A-Za-z0-9._:-]{1,199}$/', $hash) !== 1) {
+            FlashMessages::addMessage(I18N::translate('The GeMeDa person identifier is invalid.'), 'danger');
+            return redirect($this->searchUrl($context['tree']->name(), $context['individual']->xref()));
+        }
+
+        $gedcom = $context['individual']->gedcom();
+        if (preg_match('/^1 (?:EXID|_EXID) ' . preg_quote($hash, '/') . '\R(?:2 TYPE gemeda\R)?/mi', $gedcom) === 1) {
+            FlashMessages::addMessage(I18N::translate('This GeMeDa identifier is already stored.'), 'warning');
+            return redirect($this->searchUrl($context['tree']->name(), $context['individual']->xref()));
+        }
+
+        $tag = $this->preferredExidTag();
+        $gedcom = rtrim($gedcom) . "\n1 {$tag} {$hash}\n2 TYPE gemeda\n";
+        $context['individual']->updateRecord($gedcom, false);
+        FlashMessages::addMessage(I18N::translate('The GeMeDa identifier for %s was added.', $name), 'success');
+
+        return redirect($context['individual']->url());
     }
 
     public function getAdminAction(ServerRequestInterface $request): ResponseInterface
@@ -124,7 +196,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
 
         return $this->viewResponse($this->name() . '::settings', [
             'title' => $this->title(),
-            'api_base_url' => $this->getPreference(self::PREF_API_BASE_URL, ''),
+            'api_base_url' => $this->getPreference(self::PREF_API_BASE_URL, self::DEFAULT_API_BASE_URL),
             'service_key_configured' => $this->getPreference(self::PREF_SERVICE_KEY, '') !== '',
             'contributor_pepper_configured' => $this->getPreference(self::PREF_CONTRIBUTOR_PEPPER, '') !== '',
             'users' => $this->availableUsers(),
@@ -136,7 +208,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     public function postAdminAction(ServerRequestInterface $request): ResponseInterface
     {
         $body = (array) $request->getParsedBody();
-        $this->setPreference(self::PREF_API_BASE_URL, trim((string) ($body['api_base_url'] ?? '')));
+        $this->setPreference(self::PREF_API_BASE_URL, trim((string) ($body['api_base_url'] ?? self::DEFAULT_API_BASE_URL)));
 
         $exid_tag = trim((string) ($body['exid_tag'] ?? self::TAG_LEGACY_EXID));
         if (in_array($exid_tag, [self::TAG_EXID, self::TAG_LEGACY_EXID], true)) {
@@ -181,8 +253,54 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
 
     private function apiConfigured(): bool
     {
-        return trim((string) $this->getPreference(self::PREF_API_BASE_URL, '')) !== ''
+        return trim((string) $this->getPreference(self::PREF_API_BASE_URL, self::DEFAULT_API_BASE_URL)) !== ''
             && trim((string) $this->getPreference(self::PREF_SERVICE_KEY, '')) !== '';
+    }
+
+    private function apiClient(): HttpGeMeDaApiClient
+    {
+        return new HttpGeMeDaApiClient(
+            (string) $this->getPreference(self::PREF_API_BASE_URL, self::DEFAULT_API_BASE_URL),
+            (string) $this->getPreference(self::PREF_SERVICE_KEY, ''),
+        );
+    }
+
+    /** @return array{tree:\Fisharebest\Webtrees\Tree,individual:Individual} */
+    private function searchContext(ServerRequestInterface $request): array
+    {
+        $params = $request->getAttributes() + $request->getQueryParams();
+        $treeName = (string) ($params['tree'] ?? '');
+        $xref = (string) ($params['xref'] ?? '');
+        $tree = Registry::treeFactory()->make($treeName);
+        $individual = Registry::individualFactory()->make($xref, $tree);
+        if (!$individual instanceof Individual) {
+            throw new \RuntimeException('The individual could not be found.');
+        }
+
+        Auth::checkIndividualAccess($individual, false);
+
+        return ['tree' => $tree, 'individual' => $individual];
+    }
+
+    private function searchUrl(string $tree, string $xref): string
+    {
+        return route('module', ['module' => $this->name(), 'action' => 'Search', 'tree' => $tree, 'xref' => $xref]);
+    }
+
+    private function criteriaForIndividual(Individual $individual): GeMeDaSearchCriteria
+    {
+        $gedcom = $individual->gedcom();
+        $given = '';
+        $surname = '';
+        if (preg_match('/^1 NAME\s+([^\/\r\n]*)\/?([^\/\r\n]*)\/?/mi', $gedcom, $name) === 1) {
+            $given = trim((string) ($name[1] ?? ''));
+            $surname = trim((string) ($name[2] ?? ''));
+        }
+        $places = [];
+        if (preg_match_all('/^2 PLAC\s+(.+)$/mi', $gedcom, $matches) > 0) {
+            $places = array_values(array_filter(array_map('trim', $matches[1])));
+        }
+        return new GeMeDaSearchCriteria($given, $surname, (string) ($places[0] ?? ''), '', '', 20);
     }
 
     private function canCreateClaims(): bool
