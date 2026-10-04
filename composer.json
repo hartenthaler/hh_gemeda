@@ -4,7 +4,17 @@
   "type": "webtrees-module",
   "license": "GPL-3.0-or-later",
   "require": {
-    "webtrees/module-installer": "^1.0"
+    "webtrees/module-installer": "^1.0",
+    "hartenthaler/hh-shared": "^0.1"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/hartenthaler/hh_shared"
+    }
+  ],
+  "config": {
+    "prepend-autoloader": false
   },
   "autoload": {
     "psr-4": {

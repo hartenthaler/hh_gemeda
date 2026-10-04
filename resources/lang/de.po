@@ -98,6 +98,24 @@ msgstr "Die GeMeDa-API ist nicht konfiguriert. Bitten Sie einen Administrator, A
 msgid "The search uses the individual’s name and the first place recorded in the GEDCOM record."
 msgstr "Die Suche verwendet den Namen der Person und den ersten im GEDCOM-Datensatz aufgeführten Ort."
 
+msgid "Given name"
+msgstr "Vorname"
+
+msgid "Surname"
+msgstr "Nachname"
+
+msgid "Place"
+msgstr "Ort"
+
+msgid "Search"
+msgstr "Suchen"
+
+msgid "The GeMeDa API is not configured. Ask an administrator to enter the API URL."
+msgstr "Die GeMeDa-API ist nicht konfiguriert. Bitten Sie einen Administrator, die API-URL einzutragen."
+
+msgid "Adjust the fields if necessary, then start the search."
+msgstr "Passen Sie die Felder bei Bedarf an und starten Sie anschließend die Suche."
+
 msgid "No GeMeDa persons were found."
 msgstr "Keine GeMeDa-Personen gefunden."
 

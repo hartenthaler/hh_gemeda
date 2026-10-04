@@ -14,6 +14,7 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
 /** @var ?string $error */
 /** @var bool $can_edit */
 /** @var string $search_url */
+/** @var bool $searched */
 ?>
 
 <h1><?= e($title) ?></h1>
@@ -23,11 +24,29 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
     <div class="alert alert-warning"><?= e($error) ?></div>
 <?php endif ?>
 
-<p class="text-muted">
-    <?= I18N::translate('The search uses the individual’s name and the first place recorded in the GEDCOM record.') ?>
-</p>
+<form method="post" action="<?= e($search_url) ?>" class="mb-4">
+    <?= csrf_field() ?>
+    <input type="hidden" name="operation" value="search">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <label class="form-label" for="gemeda-given-name"><?= I18N::translate('Given name') ?></label>
+            <input class="form-control" id="gemeda-given-name" name="given_name" value="<?= e($criteria->givenName) ?>">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="gemeda-surname"><?= I18N::translate('Surname') ?></label>
+            <input class="form-control" id="gemeda-surname" name="surname" value="<?= e($criteria->surname) ?>">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" for="gemeda-place"><?= I18N::translate('Place') ?></label>
+            <input class="form-control" id="gemeda-place" name="place" value="<?= e($criteria->place) ?>">
+        </div>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit"><?= I18N::translate('Search') ?></button>
+</form>
 
-<?php if ($results === []) : ?>
+<?php if (!$searched) : ?>
+    <p class="text-muted"><?= I18N::translate('Adjust the fields if necessary, then start the search.') ?></p>
+<?php elseif ($results === []) : ?>
     <p><?= I18N::translate('No GeMeDa persons were found.') ?></p>
 <?php else : ?>
     <table class="table table-sm table-striped">
@@ -53,6 +72,7 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
                     <?php if ($can_edit) : ?>
                         <form method="post" action="<?= e($search_url) ?>">
                             <?= csrf_field() ?>
+                            <input type="hidden" name="operation" value="assign">
                             <input type="hidden" name="person_hash" value="<?= e($result->personHash) ?>">
                             <input type="hidden" name="person_name" value="<?= e($result->displayName) ?>">
                             <button class="btn btn-sm btn-primary" type="submit">

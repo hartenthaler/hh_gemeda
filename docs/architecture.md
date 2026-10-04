@@ -32,12 +32,13 @@ routes must not be a hard dependency.
 ## Person search boundary
 
 The individual tab delegates person search to
-`Infrastructure\\HttpGeMeDaApiClient`. The client uses the PSR-18 service from
-webtrees 2.3 when available and falls back to Guzzle on webtrees 2.2.
+`Infrastructure\\HttpGeMeDaApiClient`. The client uses the shared
+`Hartenthaler\\Webtrees\\Shared\\Http\\HttpTransport`, which selects the
+webtrees 2.3 PSR-18 service or the webtrees 2.2-compatible fallback.
 `GeMeDaSearchCriteria` and `GeMeDaSearchResult` keep the user interface
-independent of evolving API field names. The assumed endpoint is
-`POST /api/v1/search`; changing the route or adapting the final response schema
-is confined to this adapter.
+independent of evolving API field names. The current endpoint is
+`GET /api/v1/lookup/search?q=...`; changing the route or adapting the final
+response schema is confined to this adapter.
 
 ## Alignment with the GeMeDa data model
 

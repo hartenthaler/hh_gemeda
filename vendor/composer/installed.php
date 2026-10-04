@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'hartenthaler/hh_gemeda',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
+        'type' => 'webtrees-module',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => false,
+    ),
+    'versions' => array(
+        'hartenthaler/hh-shared' => array(
+            'pretty_version' => 'v0.1.0',
+            'version' => '0.1.0.0',
+            'reference' => '66b42be47b4865e3f6e84466bccf2330c73b248e',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../hartenthaler/hh-shared',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'hartenthaler/hh_gemeda' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
+            'type' => 'webtrees-module',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'webtrees/module-installer' => array(
+            'pretty_version' => '1.0.0',
+            'version' => '1.0.0.0',
+            'reference' => 'ce9f0da1d63693454579b4aa802d8c5968f69294',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/../webtrees/module-installer',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

@@ -1,0 +1,82 @@
+{
+    "packages": [
+        {
+            "name": "hartenthaler/hh-shared",
+            "version": "v0.1.0",
+            "version_normalized": "0.1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hartenthaler/hh_shared.git",
+                "reference": "66b42be47b4865e3f6e84466bccf2330c73b248e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hartenthaler/hh_shared/zipball/66b42be47b4865e3f6e84466bccf2330c73b248e",
+                "reference": "66b42be47b4865e3f6e84466bccf2330c73b248e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "time": "2026-10-03T11:01:27+00:00",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-4": {
+                    "Hartenthaler\\Webtrees\\Shared\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "description": "Shared, version-compatible helpers for Hartenthaler webtrees modules",
+            "support": {
+                "source": "https://github.com/hartenthaler/hh_shared/tree/v0.1.0",
+                "issues": "https://github.com/hartenthaler/hh_shared/issues"
+            },
+            "install-path": "../hartenthaler/hh-shared"
+        },
+        {
+            "name": "webtrees/module-installer",
+            "version": "1.0.0",
+            "version_normalized": "1.0.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://codeberg.org/webtrees/module-installer.git",
+                "reference": "ce9f0da1d63693454579b4aa802d8c5968f69294"
+            },
+            "require": {
+                "composer-plugin-api": "^2.9"
+            },
+            "require-dev": {
+                "composer/composer": "^2.9"
+            },
+            "time": "2026-02-03T09:28:29+00:00",
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Webtrees\\ModuleInstaller\\ComposerPlugin"
+            },
+            "installation-source": "source",
+            "autoload": {
+                "psr-4": {
+                    "Webtrees\\ModuleInstaller\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Greg Roach",
+                    "email": "greg@subaqua.co.uk"
+                }
+            ],
+            "description": "Composer installer for webtrees modules",
+            "homepage": "https://codeberg.org/webtrees/module-installer",
+            "install-path": "../webtrees/module-installer"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

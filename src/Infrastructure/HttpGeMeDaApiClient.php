@@ -6,13 +6,14 @@ namespace Hartenthaler\Webtrees\Module\GeMeDaModule\Infrastructure;
 
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchCriteria;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
+use Hartenthaler\Webtrees\Shared\Http\HttpTransport;
 use RuntimeException;
 use Throwable;
 
-/** HTTP adapter for the assumed GeMeDa person search endpoint. */
+/** HTTP adapter for the GeMeDa person search endpoint. */
 final class HttpGeMeDaApiClient implements GeMeDaApiClientInterface
 {
-    private const SEARCH_PATH = '/api/v1/search';
+    private const SEARCH_PATH = '/api/v1/lookup/search';
     private const MAX_RESPONSE_BYTES = 524288;
 
     public function __construct(
@@ -26,14 +27,25 @@ final class HttpGeMeDaApiClient implements GeMeDaApiClientInterface
     {
         $base = rtrim($this->baseUrl, '/');
         $url = str_ends_with($base, '/api/v1')
-            ? $base . '/search'
+            ? $base . '/lookup/search'
             : $base . self::SEARCH_PATH;
         $headers = ['User-Agent' => 'webtrees hh_gemeda/0.1'];
         if (trim($this->serviceKey) !== '') {
             $headers['Authorization'] = 'Bearer ' . trim($this->serviceKey);
         }
 
-        $response = ($this->transport ?? HttpTransport::default())->jsonPost($url, $criteria->toArray(), $headers);
+        $query = array_filter([
+            'q' => implode(' ', array_filter([
+                $criteria->givenName,
+                $criteria->surname,
+                $criteria->place,
+            ], static fn (string $value): bool => trim($value) !== '')),
+        ], static fn (string $value): bool => trim($value) !== '');
+        if ($query === []) {
+            return [];
+        }
+
+        $response = ($this->transport ?? HttpTransport::default())->request('GET', $url, $query, $headers, 8.0);
         if ($response === null) {
             throw new RuntimeException('The GeMeDa search request returned no response.');
         }
@@ -61,12 +73,20 @@ final class HttpGeMeDaApiClient implements GeMeDaApiClientInterface
             if (!is_array($row)) {
                 continue;
             }
-            $hash = (string) ($row['person_hash'] ?? $row['personHash'] ?? $row['hash'] ?? '');
+
+            // The current search endpoint returns public persons directly;
+            // older test responses wrapped the person below a `person` key.
+            $person = is_array($row['person'] ?? null) ? $row['person'] : $row;
+            $hash = (string) ($person['person_hash'] ?? $person['personHash'] ?? $person['gemeDaHash'] ?? $person['hash'] ?? '');
             if ($hash === '') {
                 continue;
             }
             $sources = [];
-            foreach (($row['sources'] ?? $row['linked_sources'] ?? $row['linkedSources'] ?? []) as $source) {
+            $sourceRows = $person['links'] ?? $person['sources'] ?? $person['linked_sources'] ?? $person['linkedSources'] ?? [];
+            if (!is_array($sourceRows)) {
+                $sourceRows = [];
+            }
+            foreach ($sourceRows as $source) {
                 if (!is_array($source)) {
                     continue;
                 }
@@ -79,15 +99,17 @@ final class HttpGeMeDaApiClient implements GeMeDaApiClientInterface
                     'external_id' => $id,
                     'type_uri' => isset($source['type_uri']) || isset($source['typeUri']) ? (string) ($source['type_uri'] ?? $source['typeUri']) : null,
                     'url' => isset($source['url']) || isset($source['external_url']) ? (string) ($source['url'] ?? $source['external_url']) : null,
-                    'label' => isset($source['label']) ? (string) $source['label'] : null,
+                    'label' => isset($source['label']) || isset($source['labelSnapshot']) || isset($source['label_snapshot'])
+                        ? (string) ($source['label'] ?? $source['labelSnapshot'] ?? $source['label_snapshot'])
+                        : null,
                 ];
             }
             $results[] = new GeMeDaSearchResult(
                 $hash,
-                (string) ($row['display_name'] ?? $row['displayName'] ?? $row['name'] ?? $hash),
+                (string) ($person['display_name'] ?? $person['displayName'] ?? $person['name'] ?? $hash),
                 $sources,
-                isset($row['score']) || isset($row['confidence']) ? (float) ($row['score'] ?? $row['confidence']) : null,
-                array_values(array_map('strval', is_array($row['match_reasons'] ?? $row['matchReasons'] ?? null) ? ($row['match_reasons'] ?? $row['matchReasons']) : [])),
+                isset($person['score']) || isset($person['confidence']) ? (float) ($person['score'] ?? $person['confidence']) : null,
+                array_values(array_map('strval', is_array($person['match_reasons'] ?? $person['matchReasons'] ?? null) ? ($person['match_reasons'] ?? $person['matchReasons']) : [])),
             );
         }
 

@@ -17,3 +17,7 @@
 - Added a version-compatible person search using the configured GeMeDa API and
   a controlled action for editors to store a selected person hash as `EXID` or
   `_EXID` with `2 TYPE gemeda`.
+- Updated the person search to the currently deployed `GET /api/v1/lookup/search`
+  endpoint, with editable search fields for given name, surname and place.
+- Replaced the module's duplicate HTTP compatibility layer with the shared
+  `hh_shared` transport for webtrees 2.2 and 2.3.
