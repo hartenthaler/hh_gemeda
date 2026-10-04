@@ -1,0 +1,14 @@
+{
+  "name": "hartenthaler/hh-shared",
+  "description": "Shared, version-compatible helpers for Hartenthaler webtrees modules",
+  "type": "library",
+  "license": "GPL-3.0-or-later",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hartenthaler\\Webtrees\\Shared\\": "src/"
+    }
+  }
+}

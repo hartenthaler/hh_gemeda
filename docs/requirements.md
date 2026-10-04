@@ -87,6 +87,10 @@ exposes `/health`, `/api/v1/lookup/batch` and `/api/v1/claims`; the other routes
 must be treated as optional until Robert confirms their deployment and
 external-client support.
 
+The current portal client uses `GET /api/v1/lookup/search?q=...` for person
+search. The module follows that route; the former `POST /api/v1/search`
+assumption is no longer used.
+
 For the first module phase, the public batch lookup is sufficient in principle.
 No write operation or service key is needed until the module is extended to
 create GeMeDa claims.

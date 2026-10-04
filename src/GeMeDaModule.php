@@ -132,42 +132,39 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     public function getSearchAction(ServerRequestInterface $request): ResponseInterface
     {
         $context = $this->searchContext($request);
-        $results = [];
-        $error = null;
         $criteria = $this->criteriaForIndividual($context['individual']);
 
-        if ($this->apiConfigured()) {
-            try {
-                $results = $this->apiClient()->search($criteria);
-            } catch (\Throwable $exception) {
-                $error = $exception->getMessage();
-            }
-        } else {
-            $error = I18N::translate('The GeMeDa API is not configured. Ask an administrator to enter the API URL and service key.');
-        }
-
-        return $this->viewResponse($this->name() . '::search', [
-            'title' => I18N::translate('Search GeMeDa for %s', trim(strip_tags($context['individual']->fullName()))),
-            'individual' => $context['individual'],
-            'tree' => $context['tree'],
-            'criteria' => $criteria,
-            'results' => $results,
-            'error' => $error,
-            'can_edit' => $context['individual']->canEdit(),
-            'search_url' => $this->searchUrl($context['tree']->name(), $context['individual']->xref()),
-        ]);
+        return $this->searchResponse($context, $criteria, [], null, false);
     }
 
     /** Add the selected GeMeDa result as an EXID block to the individual. */
     public function postSearchAction(ServerRequestInterface $request): ResponseInterface
     {
         $context = $this->searchContext($request);
+        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $operation = (string) ($body['operation'] ?? 'search');
+        if ($operation === 'search') {
+            $criteria = $this->criteriaFromBody($body, $this->criteriaForIndividual($context['individual']));
+            $results = [];
+            $error = null;
+            if (!$this->apiConfigured()) {
+                $error = I18N::translate('The GeMeDa API is not configured. Ask an administrator to enter the API URL.');
+            } else {
+                try {
+                    $results = $this->apiClient()->search($criteria);
+                } catch (\Throwable $exception) {
+                    $error = $exception->getMessage();
+                }
+            }
+
+            return $this->searchResponse($context, $criteria, $results, $error, true);
+        }
+
         if (!$context['individual']->canEdit()) {
             FlashMessages::addMessage(I18N::translate('You are not authorized to modify this individual.'), 'danger');
             return redirect($context['individual']->url());
         }
 
-        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
         $hash = trim((string) ($body['person_hash'] ?? ''));
         $name = trim((string) ($body['person_name'] ?? $hash));
         if ($hash === '' || preg_match('/^[A-Za-z0-9][A-Za-z0-9._:-]{1,199}$/', $hash) !== 1) {
@@ -269,9 +266,11 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     private function searchContext(ServerRequestInterface $request): array
     {
         $params = $request->getAttributes() + $request->getQueryParams();
-        $treeName = (string) ($params['tree'] ?? '');
+        $treeParameter = $params['tree'] ?? null;
+        $tree = $treeParameter instanceof \Fisharebest\Webtrees\Tree
+            ? $treeParameter
+            : Registry::treeFactory()->make((string) $treeParameter);
         $xref = (string) ($params['xref'] ?? '');
-        $tree = Registry::treeFactory()->make($treeName);
         $individual = Registry::individualFactory()->make($xref, $tree);
         if (!$individual instanceof Individual) {
             throw new \RuntimeException('The individual could not be found.');
@@ -285,6 +284,35 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     private function searchUrl(string $tree, string $xref): string
     {
         return route('module', ['module' => $this->name(), 'action' => 'Search', 'tree' => $tree, 'xref' => $xref]);
+    }
+
+    /** @param array<string,mixed> $body */
+    private function criteriaFromBody(array $body, GeMeDaSearchCriteria $fallback): GeMeDaSearchCriteria
+    {
+        return new GeMeDaSearchCriteria(
+            trim((string) ($body['given_name'] ?? $fallback->givenName)),
+            trim((string) ($body['surname'] ?? $fallback->surname)),
+            trim((string) ($body['place'] ?? $fallback->place)),
+            trim((string) ($body['birth_date'] ?? $fallback->birthDate)),
+            trim((string) ($body['death_date'] ?? $fallback->deathDate)),
+            20,
+        );
+    }
+
+    /** @param array{tree:\Fisharebest\Webtrees\Tree,individual:Individual} $context @param list<GeMeDaSearchResult> $results */
+    private function searchResponse(array $context, GeMeDaSearchCriteria $criteria, array $results, ?string $error, bool $searched): ResponseInterface
+    {
+        return $this->viewResponse($this->name() . '::search', [
+            'title' => I18N::translate('Search GeMeDa for %s', trim(strip_tags($context['individual']->fullName()))),
+            'individual' => $context['individual'],
+            'tree' => $context['tree'],
+            'criteria' => $criteria,
+            'results' => $results,
+            'error' => $error,
+            'searched' => $searched,
+            'can_edit' => $context['individual']->canEdit(),
+            'search_url' => $this->searchUrl($context['tree']->name(), $context['individual']->xref()),
+        ]);
     }
 
     private function criteriaForIndividual(Individual $individual): GeMeDaSearchCriteria

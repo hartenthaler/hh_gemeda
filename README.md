@@ -19,9 +19,8 @@ The current implementation provides:
   contributor pepper and explicit contributor allow-list;
 - an administration setting for the tag used by future new identifiers:
   `EXID` (GEDCOM 7) or `_EXID` (GEDCOM 5.5.1);
-- a version-compatible HTTP boundary for the assumed person-search endpoint;
-  the final search route and response schema remain subject to confirmation by
-  the GeMeDa service.
+- a version-compatible HTTP boundary for the current person-search endpoint
+  `GET /api/v1/lookup/search?q=...`.
 
 The current test endpoint is `https://api.gemeda.rpi.digital/api/v1`. It is
 not a production service: only the test environment exists, and claim writes
@@ -35,11 +34,10 @@ choice affects only identifiers created in a later write-enabled phase.
 
 When the API base URL and service key are configured, the individual tab also
 offers **Search GeMeDa**. The search sends the person's name and first recorded
-place to the assumed `POST /api/v1/search` endpoint. A selected result is stored
-as a new `EXID` or `_EXID` block with `2 TYPE gemeda`, according to the
+place to the `GET /api/v1/lookup/search?q=...` endpoint. A selected result is
+stored as a new `EXID` or `_EXID` block with `2 TYPE gemeda`, according to the
 administrator setting. The endpoint path and response normalization are
-isolated in the HTTP client so they can be adjusted when the final API contract
-is published.
+isolated in the HTTP client.
 
 ## Requirements
 

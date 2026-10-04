@@ -98,6 +98,24 @@ msgstr ""
 msgid "The search uses the individual’s name and the first place recorded in the GEDCOM record."
 msgstr ""
 
+msgid "Given name"
+msgstr ""
+
+msgid "Surname"
+msgstr ""
+
+msgid "Place"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "The GeMeDa API is not configured. Ask an administrator to enter the API URL."
+msgstr ""
+
+msgid "Adjust the fields if necessary, then start the search."
+msgstr ""
+
 msgid "No GeMeDa persons were found."
 msgstr ""
 
