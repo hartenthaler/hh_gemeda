@@ -148,3 +148,51 @@ msgstr ""
 
 msgid "Claim creation is not part of this search workflow."
 msgstr ""
+
+msgid "Enabled GeMeDa providers"
+msgstr ""
+
+msgid "The GeMeDa provider catalogue is unavailable until the administrator configures the API URL."
+msgstr ""
+
+msgid "The GeMeDa provider catalogue is currently unavailable. The GeMeDa server may not provide this endpoint yet."
+msgstr ""
+
+msgid "The GeMeDa provider catalogue is empty."
+msgstr ""
+
+msgid "New providers remain disabled until an administrator enables them here."
+msgstr ""
+
+msgid "Providers to query"
+msgstr ""
+
+msgid "No GeMeDa providers are enabled for searching."
+msgstr ""
+
+msgid "GeMeDa persons"
+msgstr ""
+
+msgid "Provider results"
+msgstr ""
+
+msgid "No provider results were returned."
+msgstr ""
+
+msgid "The provider could not be queried."
+msgstr ""
+
+msgid "No results were returned by this provider."
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Link"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "This provider returned more results than displayed."
+msgstr ""

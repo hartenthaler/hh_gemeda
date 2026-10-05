@@ -22,6 +22,10 @@ control.
 ## Version 0.2 — public read integration
 
 - implement the public batch lookup with bounded requests and timeouts;
+- load the provider catalogue dynamically and offer administrator and
+  per-search provider selection;
+- query the public meta-search proxy sequentially with isolated provider
+  failures and render provider-grouped read-only results;
 - show matched GeMeDa identities and linked provider identifiers;
 - add cache and graceful fallback behaviour;
 - provide consistency information without modifying GEDCOM data.

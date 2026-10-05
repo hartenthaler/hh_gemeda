@@ -1,49 +1,56 @@
-# Provider-URIs aus dem Genealogienetz-Portal
+# GeMeDa-Provider und externe URLs
 
-Die Portal-Anbindung unter `src/app` und den zugehörigen
-`src/data-access`-Dateien wurde am 29. September 2026 auf stabile
-Identitäts-URLs geprüft. Nur ein URL-Muster, bei dem der Provider die
-Kennung unmittelbar hinter einem festen Pfad erwartet, darf in den
-`hh_exid`-Katalog übernommen werden.
+Diese Übersicht beschreibt den Providerkatalog aus Sicht des webtrees-Moduls
+und des Zentrums der Projekte. Maßgeblich ist der aktuelle Code des Portals:
 
-## Bestätigte ID-URL-Muster
+- der öffentliche Katalog `GET /api/v1/providers`;
+- `backend/gemeda/config/providers.json`;
+- die Meta-Suchpartner in `src/data-access/metaSearch/partners.ts`;
+- die Quelladapter unter `src/data-access/gemeda/sources/`.
 
-| Provider | URI mit angehängter Kennung | Nachweis im Portal |
-| --- | --- | --- |
-| GEDBAS | `https://gedbas.genealogy.net/person/show/{ID}` | `src/data-access/gedbasSearch/result.mapper.ts`, `gedbasSearch.api.ts` |
-| DePeVe | `https://depeve.de/person/{ID}` | `src/data-access/depeveSearch.ts` |
-| DES | `https://des.genealogy.net/search/show/{ID}` | provider URL supplied for the numeric DES entry identifier |
-| Online-OFB | `http://www.online-ofb.de/famreport.php?ofb={ID}` | provider URL supplied; `{ID}` contains the OFB key and `&ID=` person identifier |
-| Adressbücher | `https://adressbuecher.genealogy.net/entry/{ID}` | provider URL supplied for UUID entry identifiers |
-| GenWiki | `https://wiki.genealogy.net/?curid={ID}` | bereits im `hh_exid`-Katalog; Portal nutzt zusätzlich die MediaWiki-API |
-| GOV | `https://gov.genealogy.net/item/show/{ID}` | im `hh_external_places`-Provider; nicht neu in `hh_exid` aufnehmen, wenn die GEDCOM-Registry-URI bereits maßgeblich ist |
+Das Modul `hh_gemeda` übernimmt den Katalog dynamisch. Die Tabelle ist daher
+eine Dokumentation des aktuellen Quellcodes, keine statische Providerliste für
+die Laufzeit.
 
-GEDBAS und DePeVe sind als zusätzliche Autoritäten im gebündelten
-`hh_exid`-Katalog registriert. Bei DePeVe ist das Kennungsformat im Portal
-nicht weiter eingeschränkt; der Katalog lässt deshalb jeden sicheren,
-URL-tauglichen Wert zu. GEDBAS verwendet die im Portal ermittelte numerische
-Personenkennung. Beide Autoritäten sind im Katalog auf die Kontexte `INDI`,
-`SOUR` und `SNOTE` beschränkt.
+## Aktueller Providerkatalog
 
-## Noch nicht als EXID-URI registriert
+| GeMeDa-ID | Bezeichnung | `metaSearchId` | Ableitung der `externalId` im Portal | Belastbare Datensatz-URL im geprüften Code |
+| --- | --- | ---: | --- | --- |
+| `gedbas` | GEDBAS | 1 | numerische ID aus `/person/show/{ID}` | `https://gedbas.genealogy.net/person/show/{ID}` |
+| `adressbuecher` | Historische Adressbücher | 2 | UUID aus `/entry/{UUID}` | `https://adressbuecher.genealogy.net/entry/{UUID}` |
+| `ofb` | Online Ortsfamilienbücher | 3 | `{ofb}::{ID}` aus den URL-Parametern `ofb` und `ID` | `http://www.online-ofb.de/famreport.php?ofb={ofb}&ID={ID}`; die Anzeige-URL kann auf `/{ofb}/` umgeschrieben werden |
+| `grabsteine` | Grabsteine | 5 | Person: `tomb:{cem}:{tomb}:person:{hash}`; Container: `tomb:{cem}:{tomb}` | keine allgemeine EXID-Schablone; Identität und Container werden aus den Parametern `cem` und `tomb` abgeleitet |
+| `verlustlisten` | Deutsche Verlustlisten 1. Weltkrieg | 6 | numerische ID aus `/search/show/{ID}` | `https://verlustlisten.genealogy.net/search/show/{ID}` |
+| `grabsteine_ostfriesland` | Grabsteine Ostfriesland | 7 | numerische ID aus `/grabstein/{ID}` | URL-Muster im Adapter: `/grabstein/{ID}`; Host ist im Adapter nicht festgelegt |
+| `sterbebilder` | Sterbebilder | 8 | Wert des URL-Parameters `id` | keine allgemeine EXID-Schablone im Adapter; die Identität wird aus `?id={ID}` gelesen |
+| `auswanderer_oldenburg` | Auswanderer aus dem Großherzogtum Oldenburg | 10 | `{tree}::{personID}` aus `tree` und `personID` | keine allgemeine EXID-Schablone im Adapter; URL-Parameter `?tree={tree}&personID={ID}` |
+| `des` | Daten-Eingabe-System DES | 11 | numerische ID aus `/search/show/{ID}` | `https://des.genealogy.net/search/show/{ID}` |
+| `zufallsfunde` | Zufallsfunde | 13 | im aktuellen Quelladapter nicht abgeleitet | noch keine belastbare ID- oder URL-Regel im geprüften Code |
+| `grabsteine_blf` | Grabsteine BLF Bayern | 14 | Wert des URL-Parameters `id` | keine allgemeine EXID-Schablone im Adapter; die Identität wird aus `?id={ID}` gelesen |
+| `greifx` | Pommerscher Greif | 15 | Wert des URL-Parameters `id` | keine allgemeine EXID-Schablone im Adapter; die Identität wird aus `?id={ID}` gelesen |
+| `allensteiner` | Allensteiner Indexierungsprojekt | 16 | im aktuellen Quelladapter nicht abgeleitet | noch keine belastbare ID- oder URL-Regel im geprüften Code |
 
-Die im Portal sichtbaren Einstiegs-URIs sind:
+Die Meta-Suche fasst die vielen `<database>`-Blöcke der Provider `ofb` und
+`grabsteine` im Portal zu jeweils einem Ergebnisblock zusammen. Das ist eine
+Darstellungsregel und keine zusätzliche Providerkennung.
 
-| Angebot | Portal-URI | Verwendungsstatus |
-| --- | --- | --- |
-| Familienanzeigen | `http://familienanzeigen.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
-| Grabsteine | `https://grabsteine.genealogy.net/` | Startseite, kein ID-Muster im geprüften Code |
-| GOV | `https://gov.genealogy.net/` | GOV-ID-Link ist bereits provider-spezifisch in `hh_external_places` dokumentiert |
-| GenWiki | `https://wiki.genealogy.net/` | Seitenkennnummer ist bereits im `hh_exid`-Katalog dokumentiert |
+## Konsequenzen für `hh_exid`
 
-Das Portal verlinkt außerdem auf Deutsche Verlustlisten, Sterbebilder,
-Auswanderer aus Oldenburg, den Pommerschen Greif und das Allensteiner
-Indexierungsprojekt. Für diese Angebote liefert der geprüfte
-`src/app`-/`src/data-access`-Stand jedoch kein allgemeines stabiles Muster
-`feste URI + externe ID`. Eine Startseite ist daher nicht automatisch eine
-gültige EXID-Ziel-URI. Diese Provider benötigen zunächst eine bestätigte
-Datensatz-URL und ein dokumentiertes Kennungsformat.
+Eine GeMeDa-Providerkennung ist nicht automatisch eine EXID-`TYPE`-URI. Eine
+EXID benötigt eine stabile, dokumentierte Ziel-URL, an die die ID nach den
+Regeln des GEDCOM-Katalogs angehängt werden kann. Deshalb gilt:
 
-Die GeMeDa-Kennung (`person_hash`) ist davon zu unterscheiden. Der aktuelle
-API- und Portalstand dokumentiert keine öffentliche URL-Schablone für einen
-GeMeDa-Personenhash; deshalb wird dafür noch keine EXID-URI erfunden.
+1. URLs mit einem eindeutig belegten festen Pfad können als eigene Autorität
+   registriert werden.
+2. Zusammengesetzte IDs wie `{ofb}::{ID}` oder Grabstein-Person-Hashes
+   dürfen nicht in eine erfundene einfache URI-Schablone gepresst werden.
+3. Bei Query-Parameter-IDs muss zunächst festgelegt werden, ob und wie die
+   vollständige URL dauerhaft als EXID abgebildet werden soll.
+4. Provider ohne Adapterregel (`zufallsfunde`, `allensteiner`) bleiben in
+   `hh_exid` ohne eigene URI-Definition, bis der Portalcode eine stabile
+   Identitätsregel bereitstellt.
+
+Die bekannten, bereits unabhängig von GeMeDa registrierten Autoritäten
+(`GenWiki`, `GOV`, `Wikidata`, `GeoNames` usw.) bleiben davon unberührt. Der
+GeMeDa-Katalog ist eine Quelle für Provider und Suchabfragen, nicht automatisch
+eine zweite konkurrierende EXID-Registry.

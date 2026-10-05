@@ -15,6 +15,16 @@ final class UnavailableGeMeDaApiClient implements GeMeDaApiClientInterface
         throw new RuntimeException('The GeMeDa API client is not configured yet.');
     }
 
+    public function providers(): array
+    {
+        throw new RuntimeException('The GeMeDa API client is not configured yet.');
+    }
+
+    public function searchProviders(GeMeDaSearchCriteria $criteria, array $providers): array
+    {
+        throw new RuntimeException('The GeMeDa API client is not configured yet.');
+    }
+
     public function person(string $personHash): ?array
     {
         throw new RuntimeException('The GeMeDa API client is not configured yet.');

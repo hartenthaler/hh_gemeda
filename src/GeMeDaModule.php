@@ -19,6 +19,8 @@ use Fisharebest\Webtrees\Services\UserService;
 use Fisharebest\Webtrees\FlashMessages;
 use Fisharebest\Webtrees\View;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchCriteria;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaProvider;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaProviderResult;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Infrastructure\HttpGeMeDaApiClient;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -41,6 +43,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     private const PREF_SERVICE_KEY = 'service_key';
     private const PREF_CONTRIBUTOR_PEPPER = 'contributor_pepper';
     private const PREF_AUTHORIZED_USERS = 'authorized_users';
+    private const PREF_ENABLED_PROVIDERS = 'enabled_provider_ids';
     private const PREF_EXID_TAG = 'exid_tag';
     private const DEFAULT_API_BASE_URL = 'https://api.gemeda.rpi.digital';
     public const TAG_EXID = 'EXID';
@@ -108,8 +111,9 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     /** {@inheritdoc} */
     public function canLoadAjax(): bool
     {
-        // The first implementation only reads local GEDCOM data. Keep the tab
-        // server-rendered until the GeMeDa API integration is available.
+        // Network-backed provider selection remains server-rendered. The
+        // provider catalogue can be unavailable while the GeMeDa endpoint is
+        // being deployed, and must not make the tab fail to load.
         return false;
     }
 
@@ -133,8 +137,20 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     {
         $context = $this->searchContext($request);
         $criteria = $this->criteriaForIndividual($context['individual']);
+        $catalogue = $this->loadProviderCatalogue();
+        $enabledProviders = $this->enabledProviders($catalogue['providers']);
 
-        return $this->searchResponse($context, $criteria, [], null, false);
+        return $this->searchResponse(
+            $context,
+            $criteria,
+            [],
+            null,
+            false,
+            $enabledProviders,
+            $this->enabledProviderIds(),
+            [],
+            $catalogue['error'],
+        );
     }
 
     /** Add the selected GeMeDa result as an EXID block to the individual. */
@@ -147,17 +163,44 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             $criteria = $this->criteriaFromBody($body, $this->criteriaForIndividual($context['individual']));
             $results = [];
             $error = null;
+            $catalogue = $this->loadProviderCatalogue();
+            $enabledProviders = $this->enabledProviders($catalogue['providers']);
+            $selectedProviderIds = $this->selectedProviderIds($body, $enabledProviders);
+            $providerResults = [];
             if (!$this->apiConfigured()) {
                 $error = I18N::translate('The GeMeDa API is not configured. Ask an administrator to enter the API URL.');
             } else {
-                try {
-                    $results = $this->apiClient()->search($criteria);
-                } catch (\Throwable $exception) {
-                    $error = $exception->getMessage();
+                if (trim((string) $this->getPreference(self::PREF_SERVICE_KEY, '')) !== '') {
+                    try {
+                        $results = $this->apiClient()->search($criteria);
+                    } catch (\Throwable $exception) {
+                        $error = $exception->getMessage();
+                    }
+                }
+                $selectedProviders = array_values(array_filter(
+                    $enabledProviders,
+                    static fn (GeMeDaProvider $provider): bool => in_array($provider->id, $selectedProviderIds, true),
+                ));
+                if ($selectedProviders !== []) {
+                    try {
+                        $providerResults = $this->apiClient()->searchProviders($criteria, $selectedProviders);
+                    } catch (\Throwable $exception) {
+                        $error ??= $exception->getMessage();
+                    }
                 }
             }
 
-            return $this->searchResponse($context, $criteria, $results, $error, true);
+            return $this->searchResponse(
+                $context,
+                $criteria,
+                $results,
+                $error,
+                true,
+                $catalogue['providers'],
+                $selectedProviderIds,
+                $providerResults,
+                $catalogue['error'],
+            );
         }
 
         if (!$context['individual']->canEdit()) {
@@ -189,6 +232,7 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
     public function getAdminAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->layout = 'layouts/administration';
+        $catalogue = $this->loadProviderCatalogue();
 
         return $this->viewResponse($this->name() . '::settings', [
             'title' => $this->title(),
@@ -198,6 +242,10 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             'users' => $this->availableUsers(),
             'authorized_user_ids' => $this->authorizedUserIds(),
             'selected_exid_tag' => $this->preferredExidTag(),
+            'providers' => $catalogue['providers'],
+            'provider_catalogue_available' => $catalogue['error'] === null,
+            'provider_catalogue_error' => $catalogue['error'],
+            'enabled_provider_ids' => $this->enabledProviderIds(),
         ]);
     }
 
@@ -223,6 +271,21 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         )));
         sort($selected_user_ids, SORT_NUMERIC);
         $this->setPreference(self::PREF_AUTHORIZED_USERS, implode(',', $selected_user_ids));
+
+        $catalogue = $this->loadProviderCatalogue();
+        $selected_provider_ids = $body['enabled_provider_ids'] ?? [];
+        if (($body['enabled_provider_ids_present'] ?? '') === '1' && $catalogue['providers'] !== []) {
+            if (!is_array($selected_provider_ids)) {
+                $selected_provider_ids = [];
+            }
+            $available_provider_ids = array_map(static fn (GeMeDaProvider $provider): string => $provider->id, $catalogue['providers']);
+            $selected_provider_ids = array_values(array_unique(array_filter(
+                array_map(static fn (mixed $provider_id): string => trim((string) $provider_id), $selected_provider_ids),
+                static fn (string $provider_id): bool => $provider_id !== '' && in_array($provider_id, $available_provider_ids, true),
+            )));
+            sort($selected_provider_ids, SORT_NATURAL | SORT_FLAG_CASE);
+            $this->setPreference(self::PREF_ENABLED_PROVIDERS, implode(',', $selected_provider_ids));
+        }
 
         foreach ([self::PREF_SERVICE_KEY => 'service_key', self::PREF_CONTRIBUTOR_PEPPER => 'contributor_pepper'] as $preference => $field) {
             $value = trim((string) ($body[$field] ?? ''));
@@ -299,8 +362,8 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
         );
     }
 
-    /** @param array{tree:\Fisharebest\Webtrees\Tree,individual:Individual} $context @param list<GeMeDaSearchResult> $results */
-    private function searchResponse(array $context, GeMeDaSearchCriteria $criteria, array $results, ?string $error, bool $searched): ResponseInterface
+    /** @param array{tree:\Fisharebest\Webtrees\Tree,individual:Individual} $context @param list<GeMeDaSearchResult> $results @param list<GeMeDaProvider> $providers @param list<string> $selected_provider_ids @param list<GeMeDaProviderResult> $provider_results */
+    private function searchResponse(array $context, GeMeDaSearchCriteria $criteria, array $results, ?string $error, bool $searched, array $providers = [], array $selected_provider_ids = [], array $provider_results = [], ?string $provider_catalogue_error = null): ResponseInterface
     {
         return $this->viewResponse($this->name() . '::search', [
             'title' => I18N::translate('Search GeMeDa for %s', trim(strip_tags($context['individual']->fullName()))),
@@ -312,7 +375,64 @@ class GeMeDaModule extends AbstractModule implements ModuleConfigInterface, Modu
             'searched' => $searched,
             'can_edit' => $context['individual']->canEdit(),
             'search_url' => $this->searchUrl($context['tree']->name(), $context['individual']->xref()),
+            'providers' => $providers,
+            'selected_provider_ids' => $selected_provider_ids,
+            'provider_results' => $provider_results,
+            'provider_catalogue_error' => $provider_catalogue_error,
         ]);
+    }
+
+    /** @return array{providers:list<GeMeDaProvider>,error:?string} */
+    private function loadProviderCatalogue(): array
+    {
+        if (!$this->apiConfigured()) {
+            return ['providers' => [], 'error' => I18N::translate('The GeMeDa provider catalogue is unavailable until the administrator configures the API URL.')];
+        }
+
+        try {
+            return ['providers' => $this->apiClient()->providers(), 'error' => null];
+        } catch (\Throwable) {
+            return ['providers' => [], 'error' => I18N::translate('The GeMeDa provider catalogue is currently unavailable. The GeMeDa server may not provide this endpoint yet.')];
+        }
+    }
+
+    /** @return list<string> */
+    private function enabledProviderIds(): array
+    {
+        $ids = array_values(array_filter(array_map('trim', explode(',', (string) $this->getPreference(self::PREF_ENABLED_PROVIDERS, '')))));
+        sort($ids, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return array_values(array_unique($ids));
+    }
+
+    /** @param list<GeMeDaProvider> $providers @return list<GeMeDaProvider> */
+    private function enabledProviders(array $providers): array
+    {
+        $enabledIds = $this->enabledProviderIds();
+
+        return array_values(array_filter(
+            $providers,
+            static fn (GeMeDaProvider $provider): bool => in_array($provider->id, $enabledIds, true),
+        ));
+    }
+
+    /** @param array<string,mixed> $body @param list<GeMeDaProvider> $providers @return list<string> */
+    private function selectedProviderIds(array $body, array $providers): array
+    {
+        $available = array_map(static fn (GeMeDaProvider $provider): string => $provider->id, $providers);
+        $selected = ($body['provider_selection_present'] ?? '') === '1'
+            ? ($body['provider_ids'] ?? [])
+            : $this->enabledProviderIds();
+        if (!is_array($selected)) {
+            $selected = [];
+        }
+        $selected = array_values(array_unique(array_filter(
+            array_map(static fn (mixed $provider_id): string => trim((string) $provider_id), $selected),
+            static fn (string $provider_id): bool => $provider_id !== '' && in_array($provider_id, $available, true),
+        )));
+        sort($selected, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $selected;
     }
 
     private function criteriaForIndividual(Individual $individual): GeMeDaSearchCriteria

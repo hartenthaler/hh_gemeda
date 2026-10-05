@@ -148,3 +148,51 @@ msgstr "Sie sind nicht berechtigt, diese Person zu ändern."
 
 msgid "Claim creation is not part of this search workflow."
 msgstr "Das Erstellen von Zuordnungsbehauptungen gehört nicht zu diesem Suchablauf."
+
+msgid "Enabled GeMeDa providers"
+msgstr "Aktivierte GeMeDa-Provider"
+
+msgid "The GeMeDa provider catalogue is unavailable until the administrator configures the API URL."
+msgstr "Der GeMeDa-Providerkatalog ist nicht verfügbar, solange der Administrator keine API-URL konfiguriert hat."
+
+msgid "The GeMeDa provider catalogue is currently unavailable. The GeMeDa server may not provide this endpoint yet."
+msgstr "Der GeMeDa-Providerkatalog ist derzeit nicht verfügbar. Der GeMeDa-Server stellt diesen Endpunkt möglicherweise noch nicht bereit."
+
+msgid "The GeMeDa provider catalogue is empty."
+msgstr "Der GeMeDa-Providerkatalog ist leer."
+
+msgid "New providers remain disabled until an administrator enables them here."
+msgstr "Neue Provider bleiben deaktiviert, bis ein Administrator sie hier aktiviert."
+
+msgid "Providers to query"
+msgstr "Abzufragende Provider"
+
+msgid "No GeMeDa providers are enabled for searching."
+msgstr "Für die Suche sind keine GeMeDa-Provider aktiviert."
+
+msgid "GeMeDa persons"
+msgstr "GeMeDa-Personen"
+
+msgid "Provider results"
+msgstr "Provider-Treffer"
+
+msgid "No provider results were returned."
+msgstr "Es wurden keine Provider-Treffer zurückgegeben."
+
+msgid "The provider could not be queried."
+msgstr "Der Provider konnte nicht abgefragt werden."
+
+msgid "No results were returned by this provider."
+msgstr "Dieser Provider hat keine Treffer zurückgegeben."
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Link"
+msgstr "Link"
+
+msgid "Open"
+msgstr "Öffnen"
+
+msgid "This provider returned more results than displayed."
+msgstr "Dieser Provider hat mehr Treffer als angezeigt zurückgegeben."
