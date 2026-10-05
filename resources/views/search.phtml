@@ -6,6 +6,8 @@ use Fisharebest\Webtrees\I18N;
 use Fisharebest\Webtrees\Individual;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchCriteria;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaProvider;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaProviderResult;
 
 /** @var string $title */
 /** @var Individual $individual */
@@ -15,6 +17,10 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
 /** @var bool $can_edit */
 /** @var string $search_url */
 /** @var bool $searched */
+/** @var list<GeMeDaProvider> $providers */
+/** @var list<string> $selected_provider_ids */
+/** @var list<GeMeDaProviderResult> $provider_results */
+/** @var ?string $provider_catalogue_error */
 ?>
 
 <h1><?= e($title) ?></h1>
@@ -41,14 +47,37 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
             <input class="form-control" id="gemeda-place" name="place" value="<?= e($criteria->place) ?>">
         </div>
     </div>
+    <fieldset class="mt-3">
+        <legend class="h5"><?= I18N::translate('Providers to query') ?></legend>
+        <?php if ($providers === []): ?>
+            <div class="alert alert-warning"><?= e($provider_catalogue_error ?? I18N::translate('No GeMeDa providers are enabled for searching.')) ?></div>
+        <?php else: ?>
+            <input type="hidden" name="provider_selection_present" value="1">
+            <div class="row row-cols-1 row-cols-md-3 g-1">
+                <?php foreach ($providers as $provider): ?>
+                    <?php $input_id = 'provider-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $provider->id); ?>
+                    <?php if (in_array($provider->id, $selected_provider_ids, true)): ?>
+                        <div class="col form-check">
+                            <input class="form-check-input" id="<?= e($input_id) ?>" name="provider_ids[]" type="checkbox" value="<?= e($provider->id) ?>" checked>
+                            <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($provider->name) ?></label>
+                        </div>
+                    <?php else: ?>
+                        <div class="col form-check">
+                            <input class="form-check-input" id="<?= e($input_id) ?>" name="provider_ids[]" type="checkbox" value="<?= e($provider->id) ?>">
+                            <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($provider->name) ?></label>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </fieldset>
     <button class="btn btn-primary mt-3" type="submit"><?= I18N::translate('Search') ?></button>
 </form>
 
 <?php if (!$searched) : ?>
     <p class="text-muted"><?= I18N::translate('Adjust the fields if necessary, then start the search.') ?></p>
-<?php elseif ($results === []) : ?>
-    <p><?= I18N::translate('No GeMeDa persons were found.') ?></p>
-<?php else : ?>
+<?php elseif ($results !== []) : ?>
+    <h2><?= I18N::translate('GeMeDa persons') ?></h2>
     <table class="table table-sm table-striped">
         <thead>
         <tr>
@@ -85,4 +114,44 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaSearchResult;
         <?php endforeach ?>
         </tbody>
     </table>
+<?php endif ?>
+
+<?php if ($searched) : ?>
+    <h2><?= I18N::translate('Provider results') ?></h2>
+    <?php if ($provider_results === []) : ?>
+        <p><?= I18N::translate('No provider results were returned.') ?></p>
+    <?php else : ?>
+        <?php foreach ($provider_results as $provider_result) : ?>
+            <section class="mb-4">
+                <h3>
+                    <?php if ($provider_result->providerUrl !== null && $provider_result->providerUrl !== '') : ?>
+                        <a href="<?= e($provider_result->providerUrl) ?>" rel="noopener noreferrer"><?= e($provider_result->provider->name) ?></a>
+                    <?php else : ?>
+                        <?= e($provider_result->provider->name) ?>
+                    <?php endif; ?>
+                </h3>
+                <?php if ($provider_result->status !== 'ok') : ?>
+                    <div class="alert alert-warning"><?= e($provider_result->error ?? I18N::translate('The provider could not be queried.')) ?></div>
+                <?php elseif ($provider_result->entries === []) : ?>
+                    <p><?= I18N::translate('No results were returned by this provider.') ?></p>
+                <?php else : ?>
+                    <table class="table table-sm table-striped">
+                        <thead><tr><th><?= I18N::translate('Name') ?></th><th><?= I18N::translate('Details') ?></th><th><?= I18N::translate('Link') ?></th></tr></thead>
+                        <tbody>
+                        <?php foreach ($provider_result->entries as $entry) : ?>
+                            <tr>
+                                <td><?= e($entry->displayName()) ?></td>
+                                <td><?= e($entry->details) ?></td>
+                                <td><a href="<?= e($entry->url) ?>" rel="noopener noreferrer"><?= I18N::translate('Open') ?></a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <?php if ($provider_result->hasMore) : ?><p class="text-muted"><?= I18N::translate('This provider returned more results than displayed.') ?></p><?php endif; ?>
+                <?php endif; ?>
+            </section>
+        <?php endforeach; ?>
+    <?php endif; ?>
+<?php elseif ($results === []) : ?>
+    <p><?= I18N::translate('No GeMeDa persons were found.') ?></p>
 <?php endif ?>

@@ -122,3 +122,18 @@ timeouts, bounded response sizes, a cache with an explicit version key and a
 graceful read-only fallback. Because the service has not defined rate limits,
 the module must be conservative by default. Batch operations remain out of
 scope until their authorization and load characteristics are documented.
+## Provider search
+
+The module does not maintain a permanent copy of the GeMeDa provider list.
+When the administrator page or a provider search is opened, the HTTP client
+requests `GET /api/v1/providers`. Each returned provider contains its GeMeDa
+identifier, display name and numeric `metaSearchId`. The administrator stores
+only the IDs explicitly enabled for this installation; newly published
+providers therefore remain disabled by default.
+
+For a search, the user selects a subset of the enabled providers. The module
+queries `https://meta.genealogy.net/proxy` once per selected `metaSearchId`
+using `lastname`, `placename` and `db`, and renders the XML responses as
+read-only, provider-grouped results. A failed provider produces a status for
+that provider only. If the catalogue endpoint is not deployed yet, the module
+shows a warning and does not use a stale hard-coded provider catalogue.

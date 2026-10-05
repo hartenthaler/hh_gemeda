@@ -21,6 +21,11 @@ The current implementation provides:
   `EXID` (GEDCOM 7) or `_EXID` (GEDCOM 5.5.1);
 - a version-compatible HTTP boundary for the current person-search endpoint
   `GET /api/v1/lookup/search?q=...`.
+- a dynamically loaded GeMeDa provider catalogue (`GET /api/v1/providers`);
+- an administrator allow-list and a per-search provider selection;
+- read-only, provider-grouped searches through the public GeMeDa meta-search
+  proxy. Provider failures are isolated and do not hide results from other
+  providers.
 
 The current test endpoint is `https://api.gemeda.rpi.digital/api/v1`. It is
 not a production service: only the test environment exists, and claim writes
@@ -32,12 +37,18 @@ No external record is imported and no GeMeDa claim is written in this phase.
 Existing `EXID` and `_EXID` entries are read equally; the administrator's tag
 choice affects only identifiers created in a later write-enabled phase.
 
-When the API base URL and service key are configured, the individual tab also
-offers **Search GeMeDa**. The search sends the person's name and first recorded
-place to the `GET /api/v1/lookup/search?q=...` endpoint. A selected result is
-stored as a new `EXID` or `_EXID` block with `2 TYPE gemeda`, according to the
-administrator setting. The endpoint path and response normalization are
-isolated in the HTTP client.
+When the API base URL is configured, the individual tab also offers **Search
+GeMeDa**. The search form lets the user adjust the name and place and select
+among the providers enabled by the administrator. The provider catalogue is
+loaded from GeMeDa; providers returned later remain disabled until the
+administrator explicitly enables them. Provider results are displayed
+read-only in separate sections. The optional GeMeDa identity search still uses
+the configured service key and can store a selected result as a new `EXID` or
+`_EXID` block with `2 TYPE gemeda`.
+
+If the GeMeDa server does not yet expose `GET /api/v1/providers`, the module
+keeps the search page usable without failing, but provider selection and
+provider searches remain unavailable until that endpoint is deployed.
 
 ## Requirements
 

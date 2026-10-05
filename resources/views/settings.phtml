@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Fisharebest\Webtrees\Http\RequestHandlers\ControlPanel;
 use Fisharebest\Webtrees\I18N;
+use Hartenthaler\Webtrees\Module\GeMeDaModule\Domain\GeMeDaProvider;
 use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
 
 /** @var string $title */
@@ -13,6 +14,10 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
 /** @var array<int,array{id:int,label:string}> $users */
 /** @var array<int,int> $authorized_user_ids */
 /** @var string $selected_exid_tag */
+/** @var list<GeMeDaProvider> $providers */
+/** @var bool $provider_catalogue_available */
+/** @var ?string $provider_catalogue_error */
+/** @var list<string> $enabled_provider_ids */
 ?>
 
 <?= view('components/breadcrumbs', [
@@ -28,6 +33,28 @@ use Hartenthaler\Webtrees\Module\GeMeDaModule\MoreI18N;
         <label class="col-sm-3 col-form-label" for="api-base-url"><?= I18N::translate('GeMeDa API base URL') ?></label>
         <div class="col-sm-9">
             <input class="form-control" id="api-base-url" name="api_base_url" type="url" value="<?= e($api_base_url) ?>" placeholder="https://example.invalid/api">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-3 col-form-label"><?= I18N::translate('Enabled GeMeDa providers') ?></div>
+        <div class="col-sm-9">
+            <?php if (!$provider_catalogue_available || $providers === []): ?>
+                <div class="alert alert-warning mb-0">
+                    <?= e($provider_catalogue_error ?? I18N::translate('The GeMeDa provider catalogue is empty.')) ?>
+                </div>
+            <?php else: ?>
+                <input type="hidden" name="enabled_provider_ids_present" value="1">
+                <div class="border rounded p-2" role="group" aria-label="<?= e(I18N::translate('Enabled GeMeDa providers')) ?>">
+                    <?php foreach ($providers as $provider): ?>
+                        <?php $input_id = 'enabled-provider-' . preg_replace('/[^A-Za-z0-9_-]/', '-', $provider->id); ?>
+                        <div class="form-check">
+                            <input class="form-check-input" id="<?= e($input_id) ?>" name="enabled_provider_ids[]" type="checkbox" value="<?= e($provider->id) ?>" <?= in_array($provider->id, $enabled_provider_ids, true) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="<?= e($input_id) ?>"><?= e($provider->name) ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="form-text"><?= I18N::translate('New providers remain disabled until an administrator enables them here.') ?></div>
+            <?php endif; ?>
         </div>
     </div>
     <div class="row mb-3">

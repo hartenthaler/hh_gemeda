@@ -21,3 +21,7 @@
   endpoint, with editable search fields for given name, surname and place.
 - Replaced the module's duplicate HTTP compatibility layer with the shared
   `hh_shared` transport for webtrees 2.2 and 2.3.
+- Added the read-only GeMeDa provider search: the provider catalogue is loaded
+  dynamically, administrators control the enabled provider allow-list, and
+  users select providers for each search. Results are grouped by provider and
+  individual provider errors are isolated.

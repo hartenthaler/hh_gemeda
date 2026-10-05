@@ -17,6 +17,12 @@ The first phase does not perform batch imports, import external person data,
 rate claims, or modify existing GeMeDa records. It must continue to work as a
 read-only module when the API cannot be reached.
 
+Issue #18 extends the read-only phase with a provider meta-search. The module
+loads the provider catalogue from `GET /api/v1/providers`, stores only the
+administrator's enabled provider IDs, and queries the public
+`https://meta.genealogy.net/proxy` endpoint for the providers selected by the
+user. Results are displayed without a GEDCOM write action.
+
 ## Actors
 
 - **Visitor:** may read the tab, never write.
@@ -56,8 +62,10 @@ the initial specification:
   used at present; there is no per-webtrees-installation key process yet.
 - No rate limits or caching rules have been defined. The module must therefore
   use conservative timeouts, bounded responses and versioned caching itself.
-- The additional `GET` routes are not guaranteed. The module must not depend on
-  them unless the service contract is updated.
+- The additional `GET` routes are not guaranteed. The provider catalogue
+  endpoint is therefore treated as optional: until it is deployed, the module
+  shows an availability warning and does not fall back to a permanently copied
+  provider list.
 - There is no admin portal for deleting, correcting, withdrawing or merging
   records yet.
 - The service now needs a `contained_in` relation alongside `same_person` for
